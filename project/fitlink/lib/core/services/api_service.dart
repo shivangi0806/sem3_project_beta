@@ -8,6 +8,7 @@ class ApiService {
     required String name,
     required String email,
     required String password,
+    required String roleId
   }) async {
     final response = await http.post(
       Uri.parse("$baseUrl/auth/register"),
@@ -18,6 +19,7 @@ class ApiService {
         "name": name,
         "email": email,
         "password": password,
+        "roleId":roleId
       }),
     );
 
@@ -52,7 +54,7 @@ Future<Map<String, dynamic>> login({
       "Content-Type": "application/json",
     },
     body: jsonEncode({
-      "email": email,
+      "identifier": email,
       "password": password,
     }),
   );

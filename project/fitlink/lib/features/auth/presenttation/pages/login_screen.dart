@@ -30,9 +30,13 @@ class _LoginScreenState extends State<LoginScreen> {
      print("LOGIN SCREEN BUILDING");
     return BlocListener<AuthCubit, AuthState>(
   listener: (context, state) {
-    if (state is AuthSuccess) {
+    if (state is AuthLoginSuccessState) {
       print("LOGIN SUCCESS: ${state.message}");
-
+    if(state.user.user.roleId=="ROLE_ADMIN")
+    {
+         Navigator.pushReplacement(context,MaterialPageRoute(builder:(context) => AdminDashboardScreen(),));
+   
+    }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(state.message),

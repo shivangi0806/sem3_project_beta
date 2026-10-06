@@ -34,19 +34,20 @@ class UserPage extends StatelessWidget {
          
 
 
-          
+          SizedBox(width: 26,)
       
-        IconButton(onPressed: (){}, icon: Icon(Icons.notification_add))
+        //IconButton(onPressed: (){}, icon: Icon(Icons.notification_add))
       ],
       ),
       
-
-body:BlocBuilder<UsersCubit, UsersState>(
+//--------------------------------------------------------------------------------
+body:
+BlocBuilder<UsersCubit, UsersState>(
   builder: (context, state) {
     print("USERS UI STATE: $state");
-return  SingleChildScrollView(
+    return  SingleChildScrollView(
   child: Padding(
-    padding: const EdgeInsets.all(40),
+    padding: const EdgeInsets.all(20),
     child: Column(
       children: [
         Row(
@@ -56,110 +57,144 @@ return  SingleChildScrollView(
             // LEFT SIDE
             Expanded(
               flex: 3,
-              child: Column(
+              child: 
+              Column(
                 children: [
         
                   // 4 cards
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: Colors.lightBlueAccent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                      ),
+                  // Row(
+                  //   children: [
+                  //     Expanded(
+                  //       child: Container(
+                          
+                  //         height: 120,
+                  //         decoration: BoxDecoration(
+                  //           color: Colors.lightBlueAccent,
+                  //           borderRadius: BorderRadius.circular(20),
+                            
+                  //         ),
+                  //         child: Padding(
+                  //           padding: const EdgeInsets.all(8.0),
+                  //           child: Text("Total Users",style: TextStyle(
+                  //           fontSize: 20,
+                  //           fontWeight: FontWeight.bold,
+                                                    
+                  //           ),),
+                  //         ),
+                  //       ),
+                  //     ),
         
-                      const SizedBox(width: 20),
+                  //     const SizedBox(width: 20),
         
-                      Expanded(
-                        child: Container(
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: Colors.lightBlueAccent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                      ),
+                  //     Expanded(
+                  //       child: Container(
+                  //         height: 120,
+                  //         decoration: BoxDecoration(
+                  //           color: Colors.lightBlueAccent,
+                  //           borderRadius: BorderRadius.circular(20),
+                  //         ),child: Padding(
+                  //           padding: const EdgeInsets.all(8.0),
+                  //           child: Text("Active Users",style: TextStyle(
+                  //           fontSize: 20,
+                  //           fontWeight: FontWeight.bold,
+                                                    
+                  //           ),),
+                  //         ),
+                  //       ),
+                  //     ),
         
-                      const SizedBox(width: 20),
+                  //     const SizedBox(width: 20),
         
-                      Expanded(
-                        child: Container(
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: Colors.lightBlueAccent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                      ),
+                  //     Expanded(
+                  //       child: Container(
+                  //         height: 120,
+                  //         decoration: BoxDecoration(
+                  //           color: Colors.lightBlueAccent,
+                  //           borderRadius: BorderRadius.circular(20),
+                  //         ),
+                  //         child: Padding(
+                  //           padding: const EdgeInsets.all(8.0),
+                  //           child: Text("Total Coaches",style: TextStyle(
+                  //           fontSize: 20,
+                  //           fontWeight: FontWeight.bold,
+                                                    
+                  //           ),),
+                  //         ),
+                  //       ),
+                  //     ),
         
-                      const SizedBox(width: 20),
+                  //     const SizedBox(width: 20),
         
-                      Expanded(
-                        child: Container(
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: Colors.lightBlueAccent,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  //     Expanded(
+                  //       child: Container(
+                  //         height: 120,
+                  //         decoration: BoxDecoration(
+                  //           color: Colors.lightBlueAccent,
+                  //           borderRadius: BorderRadius.circular(20),
+                  //         ),child: Padding(
+                  //           padding: const EdgeInsets.all(8.0),
+                  //           child: Text("Current Users",style: TextStyle(
+                  //           fontSize: 20,
+                  //           fontWeight: FontWeight.bold,
+                                                    
+                  //           ),),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
         
-                  const SizedBox(height: 30),
+                  // const SizedBox(height: 30),
         
                   // TOP PERFORMERS
-                  Container(
-                    height: 300,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: navyBlueLight,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Text(
-                        "Top Performers",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                //   Container(
+                //     height: 300,
+                //     width: double.infinity,
+                //     decoration: BoxDecoration(
+                //       color: navyBlueLight,
+                //       borderRadius: BorderRadius.circular(20),
+                //     ),
+                //     child: const Padding(
+                //       padding: EdgeInsets.all(20),
+                //       child: Text(
+                //         "Top Performers",
+                //         style: TextStyle(
+                //           color: Colors.white,
+                //           fontSize: 20,
+                //           fontWeight: FontWeight.bold,
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                //
+                 ],
               ),
             ),
         
-            const SizedBox(width: 30),
+           // const SizedBox(width: 30),
         
             // RIGHT SIDE - RECENT ACTIVITY
-            Expanded(
-              flex: 1,
-              child: Container(
-                height: 450,
-                decoration: BoxDecoration(
-                  color: navyBlueLight,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text(
-                    "Recent Activity",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            // Expanded(
+            //   flex: 1,
+            //   child: Container(
+            //     height: 450,
+            //     decoration: BoxDecoration(
+            //       color: navyBlueLight,
+            //       borderRadius: BorderRadius.circular(20),
+            //     ),
+            //     child: const Padding(
+            //       padding: EdgeInsets.all(20),
+            //       child: Text(
+            //         "Recent Activity",
+            //         style: TextStyle(
+            //           color: Colors.white,
+            //           fontSize: 20,
+            //           fontWeight: FontWeight.bold,
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
           
         ),
@@ -186,8 +221,8 @@ return  SingleChildScrollView(
             ),
           ),
   
-          const SizedBox(height: 20),
-  
+          //const SizedBox(height: 20),
+ // ---------------------------------------------------------------------------------------------------------
   //         DataTable(
   //           horizontalMargin: 20,
   // columnSpacing: 70,

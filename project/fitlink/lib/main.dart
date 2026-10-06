@@ -128,6 +128,7 @@ import 'core/services/api_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presenttation/cubits/auth_cubit.dart';
 import 'features/auth/presenttation/pages/login_screen.dart';
+import 'features/coach/presentation/screens/coach_dashboard_screen.dart';
 
 void main() {
   runApp(
@@ -149,6 +150,7 @@ class MyApp extends StatelessWidget {
       theme: darkNavyTheme,
       home: const AdminDashboardScreen()
       //const LoginScreen(),
+     // const CoachDashboardScreen(),
     );
   }
 }

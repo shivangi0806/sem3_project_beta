@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'users_state.dart';
 import 'package:fitlink/core/services/api_service.dart';
+
 class UsersCubit extends Cubit<UsersState> {
   UsersCubit() : super(UsersInitial()){
     print("USERS CUBIT CREATED");

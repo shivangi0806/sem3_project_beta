@@ -1,4 +1,5 @@
 
+import 'package:fitlink/core/model/user.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/services/api_service.dart';
@@ -22,7 +23,8 @@ class AuthCubit extends Cubit<AuthState> {
       );
        print("API RESULT: $result");
       if (result["user"] != null) {
-        emit(AuthSuccess(result["message"] ?? "Login successful"));
+        emit(AuthLoginSuccessState(user: UserSession.fromJson(result), message: result['message']));
+     //   emit(AuthSuccess(result["message"] ?? "Login successful"));
       } else {
         emit(AuthError(result["message"] ?? "Login failed"));
       }
@@ -37,6 +39,7 @@ class AuthCubit extends Cubit<AuthState> {
     required String name,
     required String email,
     required String password,
+    required String roleId
   }) async {
     emit(AuthLoading());
 
@@ -45,11 +48,14 @@ class AuthCubit extends Cubit<AuthState> {
         name: name,
         email: email,
         password: password,
+        roleId: roleId
       );
 
       if (result["user"] != null) {
         emit(AuthSuccess(
-          result["message"] ?? "Registration successful",
+          message: result['message'],
+          //user: UserSession.fromJson(result)
+          //result["message"] ?? "Registration successful",
         ));
       } else {
         emit(AuthError(result["message"] ?? "Registration failed"));
