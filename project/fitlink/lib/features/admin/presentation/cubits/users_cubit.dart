@@ -4,7 +4,7 @@ import 'users_state.dart';
 import 'package:fitlink/core/services/api_service.dart';
 
 class UsersCubit extends Cubit<UsersState> {
-  UsersCubit() : super(UsersInitial()){
+  UsersCubit() : super(UsersInitial()) {
     print("USERS CUBIT CREATED");
     testGetUsers();
   }
@@ -14,9 +14,9 @@ class UsersCubit extends Cubit<UsersState> {
     final apiService = ApiService();
 
     try {
-      final result = await apiService.getUsers();
+      // final result = await apiService.getUsers();
 
-      print("GET USERS RESULT: $result");
+      //  print("GET USERS RESULT: $result");
     } catch (e) {
       print("GET USERS ERROR: $e");
     }
