@@ -8,6 +8,7 @@ import 'package:fitlink/core/theme/app_theme.dart';
 import 'package:fitlink/features/admin/screens/user_page.dart';
 import 'package:fitlink/features/admin/screens/previleges_page.dart';
 import 'package:fitlink/features/admin/screens/dashboard_page.dart';
+import 'package:fitlink/features/auth/provider/user_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fitlink/features/admin/presentation/cubits/users_cubit.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -131,8 +132,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BlocProvider(
-                      create: (context) => UsersCubit(),
-                      child: UserPage(),
+                      create: (context) => UsersCubit(
+                        token: context.read<UserProvider>().userToken,
+                      )..loadUsers(),
+                      child: const UserPage(),
                     ),
                   ),
                 );

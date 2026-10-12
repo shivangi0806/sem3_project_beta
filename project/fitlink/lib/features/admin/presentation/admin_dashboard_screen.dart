@@ -3,7 +3,9 @@ import 'package:fitlink/features/admin/presentation/components/dashboard/admin_d
 import 'package:fitlink/features/admin/presentation/cubits/users_cubit.dart';
 import 'package:fitlink/features/admin/screens/dashboard_page.dart';
 import 'package:fitlink/features/admin/screens/previleges_page.dart';
+import 'package:fitlink/features/admin/screens/roles_page.dart';
 import 'package:fitlink/features/admin/screens/user_page.dart';
+import 'package:fitlink/features/auth/provider/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -13,7 +15,9 @@ class AdminDashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => UsersCubit(),
+      create: (context) =>
+          UsersCubit(token: context.read<UserProvider>().userToken)
+            ..loadUsers(),
       child: Scaffold(
         backgroundColor: navyBlue,
         appBar: AppBar(
@@ -101,8 +105,10 @@ class AdminDashboardScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => BlocProvider(
-                        create: (_) => UsersCubit(),
-                        child: UserPage(),
+                        create: (context) => UsersCubit(
+                          token: context.read<UserProvider>().userToken,
+                        )..loadUsers(),
+                        child: const UserPage(),
                       ),
                     ),
                   );
@@ -126,7 +132,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => PrevilegesPage()),
+                    MaterialPageRoute(builder: (_) => RolesPage()),
                   );
                 },
               ),

@@ -7,7 +7,7 @@ class PrvielgesService {
   PrvielgesService({
     required this.token,
     http.Client? client,
-    this.baseUrl = 'http://192:168::5000/api',
+    this.baseUrl = 'http://localhost:5000/api',
   }) : _client = client ?? http.Client();
 
   final String token;

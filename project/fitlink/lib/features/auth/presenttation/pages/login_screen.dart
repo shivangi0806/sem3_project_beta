@@ -1,4 +1,3 @@
-import 'package:fitlink/features/admin/presentation/providers/privileges_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:fitlink/core/theme/app_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +6,7 @@ import 'package:fitlink/features/auth/presenttation/cubits/auth_state.dart';
 import 'package:fitlink/features/auth/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'register_screen.dart';
-import 'package:fitlink/features/admin/screens/admin_dashboard_screen.dart';
+import 'package:fitlink/features/admin/presentation/admin_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
