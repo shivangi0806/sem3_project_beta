@@ -131,9 +131,15 @@ import 'package:provider/provider.dart';
 import 'core/services/api_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presenttation/cubits/auth_cubit.dart';
+<<<<<<< HEAD
 import 'features/auth/presenttation/cubits/role_check_cubit.dart';
 import 'features/auth/provider/user_provider.dart';
 
+=======
+import 'features/auth/presenttation/pages/login_screen.dart';
+import 'features/coach/presentation/screens/coach_dashboard_screen.dart';
+import 'features/coach/presentation/screens/coachdashboard_screen.dart';
+>>>>>>> fbfc4e0b775b44397478e07369902059ea35dde4
 void main() {
   runApp(
     ChangeNotifierProvider(
@@ -158,9 +164,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'FitLink',
       theme: darkNavyTheme,
-      home: LoginScreen(),
+      home: //const AdminDashboardScreen()
       //const LoginScreen(),
-      // const CoachDashboardScreen(),
+      //const CoachDashboardScreen(),
+      const CoachdashboardScreen()
     );
   }
 }
