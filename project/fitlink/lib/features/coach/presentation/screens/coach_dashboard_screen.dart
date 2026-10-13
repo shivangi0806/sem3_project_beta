@@ -1,7 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:fitlink/features/coach/data/model/coach_model.dart';
 import 'package:fitlink/core/theme/app_theme.dart';
+import 'package:fitlink/core/services/wearable_service.dart';
 class CoachDashboardScreen extends StatelessWidget {
+  Future<void> testWearableData() async {
+  try {
+    final wearableService = WearableService();
+
+    final readings =
+        await wearableService.getWearableData('P001');
+
+    print('WEARABLE READINGS: $readings');
+  } catch (e) {
+    print('ERROR FETCHING WEARABLE DATA: $e');
+  }
+}
+//   Future<void> testWearableData() async {
+//   try {
+//     final apiService = WearableService();
+
+//     final readings = await apiService.getWearableData('P001');
+
+//     print('WEARABLE READINGS: $readings');
+//   } catch (e) {
+//     print('ERROR FETCHING WEARABLE DATA: $e');
+//   }
+// }
   const CoachDashboardScreen({super.key});
 
  
@@ -860,6 +884,7 @@ class HeartRatePainter extends CustomPainter {
         text: 'min',
         style: TextStyle(
           color: Color(0xFFB5C9E2),
+
           fontSize: 10,
         ),
       ),

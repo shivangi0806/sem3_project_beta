@@ -42,7 +42,8 @@ class _WatchHomePageState extends State<WatchHomePage> {
 // String steps = '--';
 // String calories = '--';
 //double? heartRate;
-double heartRate=80;
+//double heartRate=80;
+double? heartRate;
 double? steps;
 double? calories;
 
@@ -75,19 +76,77 @@ void initState() {
   });
 
   startWorkout();
-}
-Future<void> startWorkout() async {
-  final result = await workout.start(
-    exerciseType: ExerciseType.runningTreadmill,
-    features: [
-      WorkoutFeature.heartRate,
-      WorkoutFeature.steps,
-      WorkoutFeature.calories,
-    ],
-    enableGps: false,
-  );
+// super.initState();
 
-  debugPrint('Workout started: $result');
+//   workout.stream.listen((reading) {
+//     debugPrint(
+//       'WORKOUT READING: ${reading.feature} = ${reading.value}',
+//     );
+
+//     if (!mounted) return;
+
+//     setState(() {
+//       if (reading.feature == WorkoutFeature.heartRate) {
+//         heartRate = reading.value;
+//       }
+
+//       if (reading.feature == WorkoutFeature.steps) {
+//         steps = reading.value;
+//       }
+
+//       if (reading.feature == WorkoutFeature.calories) {
+//         calories = reading.value;
+//       }
+//     });
+//   });
+
+//   startWorkout();
+ }
+
+// Future<void> startWorkout() async {
+//   final result = await workout.start(
+//     exerciseType: ExerciseType.runningTreadmill,
+//     features: [
+//       WorkoutFeature.heartRate,
+//       WorkoutFeature.steps,
+//       WorkoutFeature.calories,
+//     ],
+//     enableGps: false,
+//   );
+
+//   debugPrint('Workout started: $result');
+// }
+Future<void> startWorkout() async {
+  try {
+    debugPrint('Checking supported exercise types...');
+
+    final supportedTypes =
+        await workout.getSupportedExerciseTypes();
+
+    debugPrint('SUPPORTED EXERCISES: $supportedTypes');
+
+    final result = await workout.start(
+      exerciseType: ExerciseType.runningTreadmill,
+      features: [
+        WorkoutFeature.heartRate,
+        WorkoutFeature.steps,
+        WorkoutFeature.calories,
+      ],
+      enableGps: false,
+    );
+
+    debugPrint('WORKOUT START RESULT: $result');
+    debugPrint('UNSUPPORTED FEATURES: ${result.unsupportedFeatures}');
+
+    if (result.unsupportedFeatures.isNotEmpty) {
+      debugPrint(
+        'Some requested workout features are unsupported.',
+      );
+    }
+  } catch (e, stackTrace) {
+    debugPrint('WORKOUT START ERROR: $e');
+    debugPrint('$stackTrace');
+  }
 }
 // Future<void> startWorkout() async {
 //   final result = await workout.start(
@@ -100,67 +159,121 @@ Future<void> startWorkout() async {
 
 //   debugPrint('Workout started: $result');
 // }
+//changing
+//   Future<void> sendWearableData() async {
+//     print('SEND BUTTON PRESSED');
+//     setState(() {
+//       isSending = true;
+//       message = 'Sending...';
+//     });
 
-  Future<void> sendWearableData() async {
-    print('SEND BUTTON PRESSED');
-    setState(() {
-      isSending = true;
-      message = 'Sending...';
-    });
-
-    try {
-      final response = await http.post(
-        Uri.parse(
-          // phone connection
-          'http://10.134.39.38:5000/api/wearable/data',
-          // hostel wifi
-          //'http://192.168.1.150:5000/api/wearable/data',
-        ),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-       // body: jsonEncode({
-          // 'playerId': 'P001',
-          // 'heartRate': 82,
-          // 'steps': 4532,
-          // 'calories': 210,
+//     try {
+//       final response = await http.post(
+//         Uri.parse(
+//           // phone connection
+//           //'http://10.134.39.38:5000/api/wearable/data',
+//           // hostel wifi
+//           'http://192.168.1.150:5000/api/wearable/data',
+//         ),
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//        // body: jsonEncode({
+//           // 'playerId': 'P001',
+//           // 'heartRate': 82,
+//           // 'steps': 4532,
+//           // 'calories': 210,
           
-       // }),
-       body: jsonEncode({
-  // 'playerId': 'P001',
-  // 'heartRate': double.parse(heartRate).round(),
-  // 'steps': double.parse(steps).round(),
-  // 'calories': double.parse(calories).round(),
-          'playerId': 'P001',
-          'heartRate': heartRate?.round(),
-          'steps': steps?.round(),
-          'calories': calories?.round(),
-}),
-      );
+//        // }),
+//        body: jsonEncode({
+//   // 'playerId': 'P001',
+//   // 'heartRate': double.parse(heartRate).round(),
+//   // 'steps': double.parse(steps).round(),
+//   // 'calories': double.parse(calories).round(),
+//           'playerId': 'P001',
+//           'heartRate': heartRate?.round(),
+//           'steps': steps?.round(),
+//           'calories': calories?.round(),
+// }),
+//       );
 
-      if (response.statusCode == 200) {
-        setState(() {
-          message = 'Data sent!';
-        });
+//       if (response.statusCode == 200) {
+//         setState(() {
+//           message = 'Data sent!';
+//         });
 
-        print('SERVER RESPONSE: ${response.body}');
-      } else {
-        setState(() {
-          message = 'Failed: ${response.statusCode}';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        message = 'Error sending data';
-      });
+//         print('SERVER RESPONSE: ${response.body}');
+//       } else {
+//         setState(() {
+//           message = 'Failed: ${response.statusCode}';
+//         });
+//       }
+//     } catch (e) {
+//       setState(() {
+//         message = 'Error sending data';
+//       });
         
-      print('SEND ERROR: $e');
-    } finally {
+//       print('SEND ERROR: $e');
+//     } finally {
+//       setState(() {
+//         isSending = false;
+//       });
+//     }
+//   }
+ Future<void> sendWearableData() async {
+  print('1. SEND BUTTON PRESSED');
+
+  setState(() {
+    isSending = true;
+    message = 'Sending...';
+  });
+
+  try {
+    print('2. STARTING HTTP REQUEST');
+
+    final response = await http.post(
+      Uri.parse(
+       // 'http://192.168.1.150:5000/api/wearable/data',
+       'http://10.0.2.2:5000/api/wearable/data',
+      ),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'playerId': 'P001',
+        'heartRate': heartRate!.round(),
+        'steps': steps?.round(),
+        'calories': calories?.round(),
+      }),
+    );
+
+    print('3. RESPONSE RECEIVED');
+    print('STATUS: ${response.statusCode}');
+    print('BODY: ${response.body}');
+
+    if (response.statusCode == 200) {
       setState(() {
-        isSending = false;
+        message = 'Data sent!';
+      });
+    } else {
+      setState(() {
+        message = 'Failed: ${response.statusCode}';
       });
     }
+  } catch (e) {
+    print('4. SEND ERROR: $e');
+
+    setState(() {
+      message = 'Error sending data';
+    });
+  } finally {
+    print('5. REQUEST FINISHED');
+
+    setState(() {
+      isSending = false;
+    });
   }
+} 
 
   @override
   Widget build(BuildContext context) {

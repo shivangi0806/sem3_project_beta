@@ -129,7 +129,7 @@ import 'core/theme/app_theme.dart';
 import 'features/auth/presenttation/cubits/auth_cubit.dart';
 import 'features/auth/presenttation/pages/login_screen.dart';
 import 'features/coach/presentation/screens/coach_dashboard_screen.dart';
-
+import 'features/coach/presentation/screens/coachdashboard_screen.dart';
 void main() {
   runApp(
     BlocProvider(
@@ -148,9 +148,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'FitLink',
       theme: darkNavyTheme,
-      home: const AdminDashboardScreen()
+      home: //const AdminDashboardScreen()
       //const LoginScreen(),
-     // const CoachDashboardScreen(),
+      //const CoachDashboardScreen(),
+      const CoachdashboardScreen()
     );
   }
 }
