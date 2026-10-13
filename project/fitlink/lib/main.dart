@@ -131,6 +131,7 @@ import 'package:provider/provider.dart';
 import 'core/services/api_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presenttation/cubits/auth_cubit.dart';
+import 'features/auth/presenttation/cubits/role_check_cubit.dart';
 import 'features/auth/provider/user_provider.dart';
 
 void main() {
@@ -139,7 +140,10 @@ void main() {
       create: (_) => UserProvider(),
       child: BlocProvider(
         create: (_) => AuthCubit(ApiService()),
-        child: const MyApp(),
+        child: BlocProvider(
+          create: (_) => RoleCheckCubit(),
+          child: const MyApp(),
+        ),
       ),
     ),
   );

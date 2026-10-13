@@ -7,6 +7,10 @@ import 'package:fitlink/features/auth/provider/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'register_screen.dart';
 import 'package:fitlink/features/admin/presentation/admin_dashboard_screen.dart';
+import 'package:fitlink/features/coach/presentation/screens/coach_dashboard_screen.dart';
+import 'package:fitlink/features/auth/presenttation/cubits/role_check_cubit.dart';
+import 'package:fitlink/features/auth/presenttation/cubits/role_check_state.dart';
+import 'role_landing_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,32 +34,45 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("LOGIN SCREEN BUILDING");
-    return BlocListener<AuthCubit, AuthState>(
-      listener: (context, state) {
-        if (state is AuthLoginSuccessState) {
-          print("LOGIN SUCCESS: ${state.message}");
-          context.read<UserProvider>().setSession(state.user);
-          if (state.user.user.roleId == "ROLE_ADMIN") {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => AdminDashboardScreen()),
+    return BlocListener<RoleCheckCubit, RoleCheckState>(
+      listener: (context, roleState) {
+        if (roleState is RoleCheckResolved) {
+          final roleId = roleState.role.roleId.trim().toUpperCase();
+          final roleName = roleState.role.roleName.trim().toLowerCase();
+          final Widget destination;
+          if (roleId == 'ROLE_ADMIN' || roleName == 'admin' || roleName == 'administrator') {
+            destination = AdminDashboardScreen();
+          } else if (roleId == 'ROLE_COACH' || roleName == 'coach') {
+            destination = const CoachDashboardScreen();
+          } else if (roleId == 'ROLE_PLAYER' || roleName == 'player') {
+            destination = RoleLandingScreen(roleName: roleState.role.roleName);
+          } else {
+            context.read<UserProvider>().clearSession();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Role "${roleState.role.roleName}" has no frontend destination yet.')),
             );
+            return;
           }
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
-        }
-
-        if (state is AuthError) {
-          print("LOGIN ERROR: ${state.message}");
-
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => destination));
+        } else if (roleState is RoleCheckError) {
+          context.read<UserProvider>().clearSession();
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(roleState.message)));
         }
       },
-      child: Scaffold(
+      child: BlocListener<AuthCubit, AuthState>(
+        listener: (context, state) {
+          if (state is AuthLoginSuccessState) {
+            context.read<UserProvider>().setSession(state.user);
+            context.read<RoleCheckCubit>().resolve(
+              token: state.user.accessToken,
+              roleId: state.user.user.roleId,
+            );
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+          } else if (state is AuthError) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+          }
+        },
+        child: Scaffold(
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -249,6 +266,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:fitlink/core/model/role.dart';
 import 'package:fitlink/core/theme/app_theme.dart';
 import 'package:fitlink/features/admin/presentation/cubits/roles_cubit.dart';
 import 'package:fitlink/features/admin/presentation/cubits/roles_state.dart';
+import 'package:fitlink/features/admin/presentation/components/roles/role_form_dialog.dart';
 import 'package:fitlink/features/auth/provider/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -123,6 +124,75 @@ class _RolesPageComponentState extends State<RolesPageComponent> {
     );
   }
 
+  Future<void> _showRoleForm({Role? role}) async {
+    final state = context.read<RolesCubit>().state;
+    if (state is! RolesLoaded) return;
+    final saved = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => RoleFormDialog(
+        role: role,
+        privileges: state.privileges,
+        onSubmit: (roleId, roleName, privilegeIds) {
+          final cubit = context.read<RolesCubit>();
+          if (role == null) {
+            return cubit.createRole(
+              roleId: roleId,
+              roleName: roleName,
+              privilegesId: privilegeIds,
+            );
+          }
+          return cubit.updateRole(
+            roleId: role.roleId,
+            roleName: roleName,
+            privilegesId: privilegeIds,
+          );
+        },
+      ),
+    );
+    if (saved == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(role == null ? 'Role created.' : 'Role updated.')),
+      );
+    }
+  }
+
+  Future<void> _deleteRole(Role role) async {
+    if (role.isSystemRole) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete role?'),
+        content: Text('Delete "${role.roleName}" (${role.roleId})? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton.tonal(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await context.read<RolesCubit>().deleteRole(role.roleId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Deleted role "${role.roleName}".')),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error.toString().replaceFirst('Exception: ', ''))),
+        );
+      }
+    }
+  }
+
   Widget _detail(String label, String value) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: Row(
@@ -143,6 +213,11 @@ class _RolesPageComponentState extends State<RolesPageComponent> {
       appBar: AppBar(
         title: const Text('Roles'),
         actions: [
+          IconButton(
+            tooltip: 'Create role',
+            onPressed: () => _showRoleForm(),
+            icon: const Icon(Icons.add),
+          ),
           IconButton(
             tooltip: 'Find role by ID',
             onPressed: _lookupRole,
@@ -243,7 +318,7 @@ class _RolesPageComponentState extends State<RolesPageComponent> {
                         padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
                         itemCount: state.roles.length,
                         separatorBuilder: (_, __) => const SizedBox(height: 10),
-                        itemBuilder: (context, index) => _roleTile(state.roles[index]),
+                itemBuilder: (context, index) => _roleTile(state.roles[index]),
                       ),
               ),
             ],
@@ -299,6 +374,16 @@ class _RolesPageComponentState extends State<RolesPageComponent> {
                   ),
                 ),
                 const SizedBox(width: 8),
+                IconButton(
+                  tooltip: role.isSystemRole ? 'System roles cannot be edited' : 'Edit role',
+                  onPressed: role.isSystemRole ? null : () => _showRoleForm(role: role),
+                  icon: const Icon(Icons.edit_outlined),
+                ),
+                IconButton(
+                  tooltip: role.isSystemRole ? 'System roles cannot be deleted' : 'Delete role',
+                  onPressed: role.isSystemRole ? null : () => _deleteRole(role),
+                  icon: const Icon(Icons.delete_outline),
+                ),
                 IconButton(
                   tooltip: 'View role details',
                   onPressed: () => _showRoleDetails(role.roleId),

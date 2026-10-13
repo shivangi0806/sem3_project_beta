@@ -126,7 +126,8 @@ class ActivityLogTile extends StatelessWidget {
     }
   }
 
-  static String _formatTimestamp(DateTime timestamp) {
+  static String _formatTimestamp(DateTime? timestamp) {
+    if (timestamp == null) return 'Time unavailable';
     final local = timestamp.toLocal();
     final hour = local.hour.toString().padLeft(2, '0');
     final minute = local.minute.toString().padLeft(2, '0');

@@ -3,6 +3,7 @@ import 'package:fitlink/features/admin/presentation/components/dashboard/admin_d
 import 'package:fitlink/features/admin/presentation/cubits/users_cubit.dart';
 import 'package:fitlink/features/admin/screens/dashboard_page.dart';
 import 'package:fitlink/features/admin/screens/previleges_page.dart';
+import 'package:fitlink/features/admin/screens/recent_activities.dart';
 import 'package:fitlink/features/admin/screens/roles_page.dart';
 import 'package:fitlink/features/admin/screens/user_page.dart';
 import 'package:fitlink/features/auth/provider/user_provider.dart';
@@ -143,7 +144,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => PrevilegesPage()),
+                    MaterialPageRoute(builder: (_) => RecentActivities()),
                   );
                 },
               ),

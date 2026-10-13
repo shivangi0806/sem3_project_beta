@@ -1,16 +1,25 @@
 import 'package:fitlink/core/model/role.dart';
 import 'package:fitlink/core/services/role_service.dart';
+import 'package:fitlink/core/model/privilege.dart';
+import 'package:fitlink/core/services/privileges_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'roles_state.dart';
 
 class RolesCubit extends Cubit<RolesState> {
-  RolesCubit({required String token, RoleService? service})
+  RolesCubit({
+    required String token,
+    RoleService? service,
+    PrvielgesService? privilegesService,
+  })
       : _service = service ?? RoleService(token: token),
+        _privilegesService = privilegesService ?? PrvielgesService(token: token),
         super(RolesInitial());
 
   final RoleService _service;
+  final PrvielgesService _privilegesService;
   final List<Role> _allRoles = [];
+  final List<Privilege> _privileges = [];
   String _searchQuery = '';
   bool? _systemFilter;
 
@@ -21,10 +30,18 @@ class RolesCubit extends Cubit<RolesState> {
     }
     emit(RolesLoading());
     try {
-      final roles = await _service.getRoles();
+      final results = await Future.wait([
+        _service.getRoles(),
+        _privilegesService.getPrivileges(),
+      ]);
+      final roles = results[0] as List<Role>;
+      final privileges = results[1] as List<Privilege>;
       _allRoles
         ..clear()
         ..addAll(roles);
+      _privileges
+        ..clear()
+        ..addAll(privileges);
       _emitLoaded();
     } catch (error) {
       emit(RolesError(error.toString().replaceFirst('Exception: ', '')));
@@ -33,6 +50,37 @@ class RolesCubit extends Cubit<RolesState> {
 
   Future<Role> getRoleDetails(String roleId) =>
       _service.getRoleById(roleId.trim());
+
+  Future<void> createRole({
+    required String roleId,
+    required String roleName,
+    required List<int> privilegesId,
+  }) async {
+    await _service.createRole(
+      roleId: roleId,
+      roleName: roleName,
+      privilegesId: privilegesId,
+    );
+    await loadRoles();
+  }
+
+  Future<void> updateRole({
+    required String roleId,
+    required String roleName,
+    required List<int> privilegesId,
+  }) async {
+    await _service.updateRole(
+      roleId: roleId,
+      roleName: roleName,
+      privilegesId: privilegesId,
+    );
+    await loadRoles();
+  }
+
+  Future<void> deleteRole(String roleId) async {
+    await _service.deleteRole(roleId);
+    await loadRoles();
+  }
 
   void searchRoles(String query) {
     _searchQuery = query;
@@ -56,6 +104,7 @@ class RolesCubit extends Cubit<RolesState> {
     }).toList(growable: false);
     emit(RolesLoaded(
       roles,
+      privileges: _privileges,
       searchQuery: _searchQuery,
       systemFilter: _systemFilter,
     ));
@@ -64,6 +113,7 @@ class RolesCubit extends Cubit<RolesState> {
   @override
   Future<void> close() {
     _service.close();
+    _privilegesService.close();
     return super.close();
   }
 }
