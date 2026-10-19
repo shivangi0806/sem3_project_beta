@@ -19,4 +19,35 @@ Future<List<dynamic>> getWearableData(String playerId) async {
   throw Exception(
     'Failed to fetch wearable data: ${response.statusCode}',
   );
-}}
+}
+ Future<Map<String, dynamic>> sendWearableData({
+    required String playerId,
+    required int heartRate,
+    required int steps,
+    required double calories,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/data'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'playerId': playerId,
+        'heartRate': heartRate,
+        'steps': steps,
+        'calories': calories,
+      }),
+    );
+
+    if (response.statusCode >= 200 &&
+        response.statusCode < 300) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    }
+
+    throw Exception(
+      'Failed to send wearable data: '
+      '${response.statusCode} ${response.body}',
+    );
+  }
+
+}
