@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   fl_chart: ^1.2.0
   watch_connectivity: ^0.2.4
+  flutter_bloc: ^9.1.1
   
   http: ^1.6.0
 

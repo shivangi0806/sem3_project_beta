@@ -350,6 +350,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:watch_connectivity/watch_connectivity.dart';
+import 'package:wearable_app/theme/theme.dart';
 import 'package:workout/workout.dart';
 
 void main() {
@@ -433,7 +434,8 @@ class _WatchHomePageState extends State<WatchHomePage> {
   Future<void> startWorkout() async {
     try {
       final result = await _workout.start(
-        exerciseType: ExerciseType.runningTreadmill,
+        exerciseType:
+         ExerciseType.runningTreadmill,
         features: [
           WorkoutFeature.heartRate,
           WorkoutFeature.steps,
@@ -586,6 +588,7 @@ class _WatchHomePageState extends State<WatchHomePage> {
 @override
 Widget build(BuildContext context) {
   return Scaffold(
+    backgroundColor: navyBlueMid,
     body: SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(
@@ -599,7 +602,7 @@ Widget build(BuildContext context) {
               'FITLINK',
               style: TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.bold,color: Colors.white
               ),
             ),
             const Text('P001'),
@@ -608,19 +611,20 @@ Widget build(BuildContext context) {
             Text(
               '❤️ ${(_heartRate ?? 80).round()} BPM'
               '${_heartRate == null ? ' *' : ''}',
-              style: const TextStyle(fontSize: 12),
+              style: const TextStyle(fontSize: 12,color: Colors.white ),
+              
             ),
             Text(
               '👣 ${_steps?.round() ?? '--'} steps',
-              style: const TextStyle(fontSize: 12),
+              style: const TextStyle(fontSize: 12,color: Colors.white),
             ),
             Text(
               '🔥 ${_calories?.round() ?? '--'} kcal',
-              style: const TextStyle(fontSize: 12),
+              style: const TextStyle(fontSize: 12,color: Colors.white),
             ),
 
             const SizedBox(height: 10),
-
+        
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -632,11 +636,11 @@ Widget build(BuildContext context) {
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     vertical: 8,
-                  ),
+                  ),backgroundColor: accentBlue
                 ),
                 child: Text(
                   _isSending ? 'Sending...' : 'SEND',
-                  style: const TextStyle(fontSize: 12),
+                  style: const TextStyle(fontSize: 12,color: Colors.white),
                 ),
               ),
             ),
@@ -648,7 +652,7 @@ Widget build(BuildContext context) {
                 child: Text(
                   _message,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 10),
+                  style: const TextStyle(fontSize: 10,color: Colors.white),
                 ),
               ),
             ),
