@@ -2,34 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:fitlink/features/coach/data/model/coach_model.dart';
 import 'package:fitlink/core/theme/app_theme.dart';
 import 'package:fitlink/core/services/wearable_service.dart';
+
 class CoachDashboardScreen extends StatelessWidget {
   Future<void> testWearableData() async {
-  try {
-    final wearableService = WearableService();
+    try {
+      final wearableService = WearableService();
 
-    final readings =
-        await wearableService.getWearableData('P001');
+      final readings = await wearableService.getWearableData('P001');
 
-    print('WEARABLE READINGS: $readings');
-  } catch (e) {
-    print('ERROR FETCHING WEARABLE DATA: $e');
+      print('WEARABLE READINGS: $readings');
+    } catch (e) {
+      print('ERROR FETCHING WEARABLE DATA: $e');
+    }
   }
-}
-//   Future<void> testWearableData() async {
-//   try {
-//     final apiService = WearableService();
+  //   Future<void> testWearableData() async {
+  //   try {
+  //     final apiService = WearableService();
 
-//     final readings = await apiService.getWearableData('P001');
+  //     final readings = await apiService.getWearableData('P001');
 
-//     print('WEARABLE READINGS: $readings');
-//   } catch (e) {
-//     print('ERROR FETCHING WEARABLE DATA: $e');
-//   }
-// }
-  const CoachDashboardScreen({super.key});
-
- 
-
+  //     print('WEARABLE READINGS: $readings');
+  //   } catch (e) {
+  //     print('ERROR FETCHING WEARABLE DATA: $e');
+  //   }
+  // }
   final List<PlayerData> players = const [
     PlayerData(
       id: 'P001',
@@ -38,9 +34,29 @@ class CoachDashboardScreen extends StatelessWidget {
       calories: 210,
       status: 'Active',
       heartRate: [
-        78, 77, 80, 82, 85, 88, 90, 94,
-        98, 102, 108, 110, 106, 100, 94, 88,
-        82, 78, 74, 72, 74, 86, 80,
+        78,
+        77,
+        80,
+        82,
+        85,
+        88,
+        90,
+        94,
+        98,
+        102,
+        108,
+        110,
+        106,
+        100,
+        94,
+        88,
+        82,
+        78,
+        74,
+        72,
+        74,
+        86,
+        80,
       ],
     ),
     PlayerData(
@@ -50,9 +66,29 @@ class CoachDashboardScreen extends StatelessWidget {
       calories: 185,
       status: 'Active',
       heartRate: [
-        76, 75, 78, 80, 84, 88, 90, 94,
-        98, 104, 110, 114, 109, 102, 96, 92,
-        98, 90, 84, 78, 76, 88, 86,
+        76,
+        75,
+        78,
+        80,
+        84,
+        88,
+        90,
+        94,
+        98,
+        104,
+        110,
+        114,
+        109,
+        102,
+        96,
+        92,
+        98,
+        90,
+        84,
+        78,
+        76,
+        88,
+        86,
       ],
     ),
     PlayerData(
@@ -62,9 +98,29 @@ class CoachDashboardScreen extends StatelessWidget {
       calories: 120,
       status: 'Resting',
       heartRate: [
-        78, 77, 78, 80, 79, 78, 76, 74,
-        72, 73, 74, 76, 78, 80, 82, 80,
-        90, 84, 78, 80, 79, 78, 81,
+        78,
+        77,
+        78,
+        80,
+        79,
+        78,
+        76,
+        74,
+        72,
+        73,
+        74,
+        76,
+        78,
+        80,
+        82,
+        80,
+        90,
+        84,
+        78,
+        80,
+        79,
+        78,
+        81,
       ],
     ),
     PlayerData(
@@ -74,9 +130,29 @@ class CoachDashboardScreen extends StatelessWidget {
       calories: 195,
       status: 'Active',
       heartRate: [
-        80, 82, 88, 94, 90, 84, 80, 86,
-        92, 96, 100, 106, 110, 114, 110, 104,
-        98, 90, 94, 96, 90, 82, 86,
+        80,
+        82,
+        88,
+        94,
+        90,
+        84,
+        80,
+        86,
+        92,
+        96,
+        100,
+        106,
+        110,
+        114,
+        110,
+        104,
+        98,
+        90,
+        94,
+        96,
+        90,
+        82,
+        86,
       ],
     ),
   ];
@@ -105,24 +181,19 @@ class CoachDashboardScreen extends StatelessWidget {
                             children: [
                               _buildPageTitle(),
                               const SizedBox(height: 20),
-
                               GridView.builder(
                                 shrinkWrap: true,
-                                physics:
-                                    const NeverScrollableScrollPhysics(),
+                                physics: const NeverScrollableScrollPhysics(),
                                 itemCount: players.length,
                                 gridDelegate:
                                     SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: isSmall ? 1 : 2,
-                                  crossAxisSpacing: 20,
-                                  mainAxisSpacing: 20,
-                                  childAspectRatio: isSmall ? 1.45 : 1.15,
-                                ),
-                                itemBuilder: (context, index) {
-                                  return PlayerCard(
-                                    player: players[index],
-                                  );
-                                },
+                                      crossAxisCount: isSmall ? 1 : 2,
+                                      crossAxisSpacing: 20,
+                                      mainAxisSpacing: 20,
+                                      childAspectRatio: isSmall ? 1.45 : 1.15,
+                                    ),
+                                itemBuilder: (context, index) =>
+                                    PlayerCard(player: players[index]),
                               ),
                             ],
                           ),
@@ -144,11 +215,7 @@ class CoachDashboardScreen extends StatelessWidget {
       width: 250,
       decoration: BoxDecoration(
         color: const Color(0xFF0B2140),
-        border: Border(
-          right: BorderSide(
-            color: Colors.white.withOpacity(.06),
-          ),
-        ),
+        border: Border(right: BorderSide(color: Colors.white.withOpacity(.06))),
       ),
       child: Column(
         children: [
@@ -159,11 +226,7 @@ class CoachDashboardScreen extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Row(
               children: [
-                const Icon(
-                  Icons.directions_run,
-                  color: accentBlue,
-                  size: 36,
-                ),
+                const Icon(Icons.directions_run, color: accentBlue, size: 36),
                 const SizedBox(width: 10),
                 const Text(
                   'FitLink',
@@ -177,34 +240,15 @@ class CoachDashboardScreen extends StatelessWidget {
             ),
           ),
 
-          Divider(
-            color: Colors.white.withOpacity(.06),
-            height: 1,
-          ),
+          Divider(color: Colors.white.withOpacity(.06), height: 1),
 
           const SizedBox(height: 18),
 
-          _sidebarItem(
-            Icons.grid_view_rounded,
-            'Players',
-            selected: true,
-          ),
-          _sidebarItem(
-            Icons.access_time_rounded,
-            'Sessions',
-          ),
-          _sidebarItem(
-            Icons.bar_chart_rounded,
-            'Analytics',
-          ),
-          _sidebarItem(
-            Icons.description_outlined,
-            'Reports',
-          ),
-          _sidebarItem(
-            Icons.settings_outlined,
-            'Settings',
-          ),
+          _sidebarItem(Icons.grid_view_rounded, 'Players', selected: true),
+          _sidebarItem(Icons.access_time_rounded, 'Sessions'),
+          _sidebarItem(Icons.bar_chart_rounded, 'Analytics'),
+          _sidebarItem(Icons.description_outlined, 'Reports'),
+          _sidebarItem(Icons.settings_outlined, 'Settings'),
 
           const Spacer(),
 
@@ -212,11 +256,7 @@ class CoachDashboardScreen extends StatelessWidget {
             padding: const EdgeInsets.all(28),
             child: Row(
               children: [
-                Icon(
-                  Icons.monitor_heart_outlined,
-                  color: accentBlue,
-                  size: 24,
-                ),
+                Icon(Icons.monitor_heart_outlined, color: accentBlue, size: 24),
                 const SizedBox(width: 10),
                 const Expanded(
                   child: Text(
@@ -236,22 +276,13 @@ class CoachDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _sidebarItem(
-    IconData icon,
-    String title, {
-    bool selected = false,
-  }) {
+  Widget _sidebarItem(IconData icon, String title, {bool selected = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 13,
-        vertical: 4,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 4),
       child: Container(
         height: 52,
         decoration: BoxDecoration(
-          color: selected
-              ? const Color(0xFF174B8F)
-              : Colors.transparent,
+          color: selected ? const Color(0xFF174B8F) : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -259,21 +290,16 @@ class CoachDashboardScreen extends StatelessWidget {
             const SizedBox(width: 16),
             Icon(
               icon,
-              color: selected
-                  ? Colors.white
-                  : const Color(0xFF91ACCC),
+              color: selected ? Colors.white : const Color(0xFF91ACCC),
               size: 23,
             ),
             const SizedBox(width: 16),
             Text(
               title,
               style: TextStyle(
-                color: selected
-                    ? Colors.white
-                    : const Color(0xFF91ACCC),
+                color: selected ? Colors.white : const Color(0xFF91ACCC),
                 fontSize: 16,
-                fontWeight:
-                    selected ? FontWeight.w600 : FontWeight.w400,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
               ),
             ),
           ],
@@ -289,9 +315,7 @@ class CoachDashboardScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF0B2344),
         border: Border(
-          bottom: BorderSide(
-            color: Colors.white.withOpacity(.06),
-          ),
+          bottom: BorderSide(color: Colors.white.withOpacity(.06)),
         ),
       ),
       child: Row(
@@ -311,10 +335,7 @@ class CoachDashboardScreen extends StatelessWidget {
               SizedBox(height: 3),
               Text(
                 'Monitor. Guide. Improve.',
-                style: TextStyle(
-                  color: Color(0xFF91ACCC),
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Color(0xFF91ACCC), fontSize: 14),
               ),
             ],
           ),
@@ -347,32 +368,6 @@ class CoachDashboardScreen extends StatelessWidget {
           ),
 
           const SizedBox(width: 15),
-
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: const Color(0xFF7187A8),
-            child: const Icon(
-              Icons.person,
-              color: Colors.white,
-            ),
-          ),
-
-          const SizedBox(width: 10),
-
-          const Text(
-            'Coach',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-            ),
-          ),
-
-          const SizedBox(width: 5),
-
-          const Icon(
-            Icons.keyboard_arrow_down_rounded,
-            color: Colors.white70,
-          ),
         ],
       ),
     );
@@ -381,11 +376,7 @@ class CoachDashboardScreen extends StatelessWidget {
   Widget _buildPageTitle() {
     return Row(
       children: [
-        const Icon(
-          Icons.people_alt_outlined,
-          color: accentBlue,
-          size: 30,
-        ),
+        const Icon(Icons.people_alt_outlined, color: accentBlue, size: 30),
         const SizedBox(width: 12),
         const Text(
           'Player Performance',
@@ -397,10 +388,7 @@ class CoachDashboardScreen extends StatelessWidget {
         ),
         const Spacer(),
         Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 17,
-            vertical: 11,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 11),
           decoration: BoxDecoration(
             color: const Color(0xFF102D52),
             borderRadius: BorderRadius.circular(10),
@@ -415,16 +403,10 @@ class CoachDashboardScreen extends StatelessWidget {
               SizedBox(width: 10),
               Text(
                 'Today',
-                style: TextStyle(
-                  color: Color(0xFFB6C9E0),
-                  fontSize: 15,
-                ),
+                style: TextStyle(color: Color(0xFFB6C9E0), fontSize: 15),
               ),
               SizedBox(width: 18),
-              Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: Color(0xFF9DB6D5),
-              ),
+              Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF9DB6D5)),
             ],
           ),
         ),
@@ -433,7 +415,6 @@ class CoachDashboardScreen extends StatelessWidget {
   }
 }
 
-
 // ============================================================
 // PLAYER CARD
 // ============================================================
@@ -441,10 +422,7 @@ class CoachDashboardScreen extends StatelessWidget {
 class PlayerCard extends StatelessWidget {
   final PlayerData player;
 
-  const PlayerCard({
-    super.key,
-    required this.player,
-  });
+  const PlayerCard({super.key, required this.player});
 
   static const Color cardBlue = Color(0xFF0D2344);
   static const Color green = Color(0xFF27C39F);
@@ -458,9 +436,7 @@ class PlayerCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cardBlue,
         borderRadius: BorderRadius.circular(13),
-        border: Border.all(
-          color: const Color(0xFF1B4678),
-        ),
+        border: Border.all(color: const Color(0xFF1B4678)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -569,11 +545,7 @@ class PlayerCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 3),
-                Expanded(
-                  child: HeartRateChart(
-                    values: player.heartRate,
-                  ),
-                ),
+                Expanded(child: HeartRateChart(values: player.heartRate)),
               ],
             ),
           ),
@@ -604,19 +576,11 @@ class PlayerCard extends StatelessWidget {
     );
   }
 
-  Widget _metric(
-    IconData icon,
-    String text,
-    Color color,
-  ) {
+  Widget _metric(IconData icon, String text, Color color) {
     return Expanded(
       child: Row(
         children: [
-          Icon(
-            icon,
-            color: color,
-            size: 24,
-          ),
+          Icon(icon, color: color, size: 24),
           const SizedBox(width: 8),
           Text(
             text,
@@ -646,12 +610,11 @@ class PlayerCard extends StatelessWidget {
 
   String _formatNumber(int number) {
     return number.toString().replaceAllMapped(
-          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-          (match) => '${match[1]},',
-        );
+      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+      (match) => '${match[1]},',
+    );
   }
 }
-
 
 // ============================================================
 // PROGRESS BAR
@@ -683,11 +646,7 @@ class ProgressRow extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 21,
-            ),
+            Icon(icon, color: color, size: 21),
             const SizedBox(width: 9),
             Text(
               title,
@@ -700,10 +659,7 @@ class ProgressRow extends StatelessWidget {
             const Spacer(),
             Text(
               suffix,
-              style: const TextStyle(
-                color: Color(0xFFC3D2E5),
-                fontSize: 13,
-              ),
+              style: const TextStyle(color: Color(0xFFC3D2E5), fontSize: 13),
             ),
           ],
         ),
@@ -737,7 +693,6 @@ class ProgressRow extends StatelessWidget {
   }
 }
 
-
 // ============================================================
 // HEART RATE CHART
 // ============================================================
@@ -745,10 +700,7 @@ class ProgressRow extends StatelessWidget {
 class HeartRateChart extends StatelessWidget {
   final List<double> values;
 
-  const HeartRateChart({
-    super.key,
-    required this.values,
-  });
+  const HeartRateChart({super.key, required this.values});
 
   @override
   Widget build(BuildContext context) {
@@ -771,11 +723,9 @@ class HeartRatePainter extends CustomPainter {
     const topPadding = 5.0;
     const rightPadding = 5.0;
 
-    final chartWidth =
-        size.width - leftPadding - rightPadding;
+    final chartWidth = size.width - leftPadding - rightPadding;
 
-    final chartHeight =
-        size.height - topPadding - bottomPadding;
+    final chartHeight = size.height - topPadding - bottomPadding;
 
     final gridPaint = Paint()
       ..color = const Color(0xFF234467)
@@ -788,8 +738,7 @@ class HeartRatePainter extends CustomPainter {
 
     // Horizontal grid lines
     for (int i = 0; i < 4; i++) {
-      final y = topPadding +
-          (chartHeight / 3) * i;
+      final y = topPadding + (chartHeight / 3) * i;
 
       canvas.drawLine(
         Offset(leftPadding, y),
@@ -802,29 +751,19 @@ class HeartRatePainter extends CustomPainter {
     const labels = ['120', '100', '80', '60'];
 
     for (int i = 0; i < labels.length; i++) {
-      final y = topPadding +
-          (chartHeight / 3) * i;
+      final y = topPadding + (chartHeight / 3) * i;
 
       final textPainter = TextPainter(
         text: TextSpan(
           text: labels[i],
-          style: const TextStyle(
-            color: Color(0xFFB5C9E2),
-            fontSize: 10,
-          ),
+          style: const TextStyle(color: Color(0xFFB5C9E2), fontSize: 10),
         ),
         textDirection: TextDirection.ltr,
       );
 
       textPainter.layout();
 
-      textPainter.paint(
-        canvas,
-        Offset(
-          0,
-          y - textPainter.height / 2,
-        ),
-      );
+      textPainter.paint(canvas, Offset(0, y - textPainter.height / 2));
     }
 
     if (values.isEmpty) return;
@@ -832,14 +771,11 @@ class HeartRatePainter extends CustomPainter {
     final path = Path();
 
     for (int i = 0; i < values.length; i++) {
-      final x = leftPadding +
-          (i / (values.length - 1)) * chartWidth;
+      final x = leftPadding + (i / (values.length - 1)) * chartWidth;
 
-      final normalized =
-          ((values[i] - 60) / 60).clamp(0.0, 1.0);
+      final normalized = ((values[i] - 60) / 60).clamp(0.0, 1.0);
 
-      final y =
-          topPadding + chartHeight * (1 - normalized);
+      final y = topPadding + chartHeight * (1 - normalized);
 
       if (i == 0) {
         path.moveTo(x, y);
@@ -854,16 +790,12 @@ class HeartRatePainter extends CustomPainter {
     const xLabels = ['0', '10', '20', '30', '40'];
 
     for (int i = 0; i < xLabels.length; i++) {
-      final x = leftPadding +
-          (i / (xLabels.length - 1)) * chartWidth;
+      final x = leftPadding + (i / (xLabels.length - 1)) * chartWidth;
 
       final textPainter = TextPainter(
         text: TextSpan(
           text: xLabels[i],
-          style: const TextStyle(
-            color: Color(0xFFB5C9E2),
-            fontSize: 10,
-          ),
+          style: const TextStyle(color: Color(0xFFB5C9E2), fontSize: 10),
         ),
         textDirection: TextDirection.ltr,
       );
@@ -872,21 +804,14 @@ class HeartRatePainter extends CustomPainter {
 
       textPainter.paint(
         canvas,
-        Offset(
-          x - textPainter.width / 2,
-          size.height - textPainter.height,
-        ),
+        Offset(x - textPainter.width / 2, size.height - textPainter.height),
       );
     }
 
     final minTextPainter = TextPainter(
       text: const TextSpan(
         text: 'min',
-        style: TextStyle(
-          color: Color(0xFFB5C9E2),
-
-          fontSize: 10,
-        ),
+        style: TextStyle(color: Color(0xFFB5C9E2), fontSize: 10),
       ),
       textDirection: TextDirection.ltr,
     );
@@ -907,5 +832,3 @@ class HeartRatePainter extends CustomPainter {
     return oldDelegate.values != values;
   }
 }
-
-

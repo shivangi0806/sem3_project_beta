@@ -7,10 +7,10 @@ This document defines the implementation workflow and naming conventions for fea
 Implement each feature in this order:
 
 1. **Evaluate the API and data requirements.** Confirm the request/response contract, validation rules, authorization needs, and expected error cases before implementation.
-2. **Create the Mongoose model.** The model represents the entity stored in the database.
-3. **Create the service.** Put business logic in a file named `[featurename].service.js`.
-4. **Create the route.** Put HTTP route handlers in `[feature-name].routes.js` and add Swagger documentation for every route. Swagger operation names, summaries, schemas, parameters, responses, and errors must accurately match the implemented route and its API contract.
-5. **Register the route.** If it is not already registered, integrate it in `index.js`.
+2. **Create the Mongoose model.** Use `models/[entity].model.js` for the persisted entity.
+3. **Create the service.** Put business logic in `serivces/[feature].service.js` (preserving the current backend directory spelling).
+4. **Create the route.** Put HTTP handlers in `routes/[feature].route.js` and add Swagger documentation for every route. Swagger operation names, summaries, schemas, parameters, responses, and errors must match the implemented API contract.
+5. **Register the route.** Integrate it in `index.js`.
 6. **Test the integrated route.** Cover all four outcome categories:
    - **True positive:** valid input and authorized request succeed as expected.
    - **True negative:** invalid input or unauthorized request is rejected as expected.
@@ -19,11 +19,11 @@ Implement each feature in this order:
 
 ### Backend naming
 
-Use the pattern `[featurename].[specific component].js`, with the feature name and component matching the file's responsibility. Examples include:
+The mandatory backend development phase is **model → service → route → index integration**. Use the pattern `[feature].[specific component].js`, with the feature name and component matching the file's responsibility. Examples include:
 
 - `session.model.js`
 - `session.service.js`
-- `session.routes.js`
+- `session.route.js`
 - `session.config.js`
 - `session.seed.js`
 

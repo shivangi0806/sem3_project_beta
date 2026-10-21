@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:fitlink/core/services/api_service.dart';
 import 'package:http/http.dart' as http;
 
 /// Loads role definitions so the client can resolve the signed-in user's role.
@@ -8,16 +9,17 @@ class RoleCheckService {
   RoleCheckService({
     required this.token,
     http.Client? client,
-    this.baseUrl = 'http://localhost:5000/api',
-  }) : _client = client ?? http.Client();
+    String? baseUrl,
+  }) : baseUrl = baseUrl ?? ApiService().baseUrl,
+       _client = client ?? http.Client();
 
   final String token;
   final String baseUrl;
   final http.Client _client;
 
-  Future<List<Map<String, dynamic>>> getRoles() async {
+  Future<Map<String, dynamic>> getRole(String roleId) async {
     final response = await _client.get(
-      Uri.parse('$baseUrl/roles'),
+      Uri.parse('$baseUrl/roles/${Uri.encodeComponent(roleId)}'),
       headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
@@ -41,12 +43,10 @@ class RoleCheckService {
     }
 
     final data = body['data'];
-    if (data is! List) {
-      throw const FormatException('Expected a list of roles in the response.');
+    if (data is! Map) {
+      throw const FormatException('Expected a role object in the response.');
     }
-    return data
-        .map((item) => Map<String, dynamic>.from(item as Map))
-        .toList(growable: false);
+    return Map<String, dynamic>.from(data);
   }
 
   void close() => _client.close();
