@@ -120,21 +120,35 @@
 //     );
 //   }
 // }
-import 'package:fitlink/features/auth/presenttation/screens/admin_dashboard_screen.dart';
+//import 'package:fitlink/features/auth/presenttation/screens/admin_dashboard_screen.dart';
+import 'package:fitlink/features/admin/presentation/admin_dashboard_screen.dart';
+import 'package:fitlink/features/admin/screens/previleges_page.dart';
+import 'package:fitlink/features/auth/presenttation/pages/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 
 import 'core/services/api_service.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/presenttation/cubits/auth_cubit.dart';
+import 'features/auth/presenttation/cubits/role_check_cubit.dart';
+import 'features/auth/provider/user_provider.dart';
+
 import 'features/auth/presenttation/pages/login_screen.dart';
 import 'features/coach/presentation/screens/coach_dashboard_screen.dart';
 import 'features/coach/presentation/screens/coachdashboard_screen.dart';
+
 void main() {
   runApp(
-    BlocProvider(
-      create: (context) => AuthCubit(ApiService()),
-      child: const MyApp(),
+    ChangeNotifierProvider(
+      create: (_) => UserProvider(),
+      child: BlocProvider(
+        create: (_) => AuthCubit(ApiService()),
+        child: BlocProvider(
+          create: (_) => RoleCheckCubit(),
+          child: const MyApp(),
+        ),
+      ),
     ),
   );
 }
@@ -149,9 +163,9 @@ class MyApp extends StatelessWidget {
       title: 'FitLink',
       theme: darkNavyTheme,
       home: //const AdminDashboardScreen()
-      //const LoginScreen(),
-      //const CoachDashboardScreen(),
-      const CoachdashboardScreen()
+          //const LoginScreen(),
+          //const CoachDashboardScreen(),
+          const LoginScreen(),
     );
   }
 }
