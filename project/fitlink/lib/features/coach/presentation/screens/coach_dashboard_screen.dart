@@ -1,418 +1,208 @@
-import 'package:flutter/material.dart';
-import 'package:fitlink/features/coach/data/model/coach_model.dart';
-import 'package:fitlink/core/theme/app_theme.dart';
 import 'package:fitlink/core/services/wearable_service.dart';
+import 'package:fitlink/core/theme/app_theme.dart';
+import 'package:fitlink/features/coach/data/model/coach_model.dart';
+import 'package:flutter/material.dart';
 
-class CoachDashboardScreen extends StatelessWidget {
-  Future<void> testWearableData() async {
-    try {
-      final wearableService = WearableService();
-
-      final readings = await wearableService.getWearableData('P001');
-
-      print('WEARABLE READINGS: $readings');
-    } catch (e) {
-      print('ERROR FETCHING WEARABLE DATA: $e');
-    }
-  }
-  //   Future<void> testWearableData() async {
-  //   try {
-  //     final apiService = WearableService();
-
-  //     final readings = await apiService.getWearableData('P001');
-
-  //     print('WEARABLE READINGS: $readings');
-  //   } catch (e) {
-  //     print('ERROR FETCHING WEARABLE DATA: $e');
-  //   }
-  // }
-  final List<PlayerData> players = const [
-    PlayerData(
-      id: 'P001',
-      bpm: 80,
-      steps: 4532,
-      calories: 210,
-      status: 'Active',
-      heartRate: [
-        78,
-        77,
-        80,
-        82,
-        85,
-        88,
-        90,
-        94,
-        98,
-        102,
-        108,
-        110,
-        106,
-        100,
-        94,
-        88,
-        82,
-        78,
-        74,
-        72,
-        74,
-        86,
-        80,
-      ],
+Widget _buildSidebar() {
+  return Container(
+    width: 250,
+    decoration: BoxDecoration(
+      color: const Color(0xFF0B2140),
+      border: Border(right: BorderSide(color: Colors.white.withOpacity(.06))),
     ),
-    PlayerData(
-      id: 'P002',
-      bpm: 92,
-      steps: 3876,
-      calories: 185,
-      status: 'Active',
-      heartRate: [
-        76,
-        75,
-        78,
-        80,
-        84,
-        88,
-        90,
-        94,
-        98,
-        104,
-        110,
-        114,
-        109,
-        102,
-        96,
-        92,
-        98,
-        90,
-        84,
-        78,
-        76,
-        88,
-        86,
-      ],
-    ),
-    PlayerData(
-      id: 'P003',
-      bpm: 76,
-      steps: 2940,
-      calories: 120,
-      status: 'Resting',
-      heartRate: [
-        78,
-        77,
-        78,
-        80,
-        79,
-        78,
-        76,
-        74,
-        72,
-        73,
-        74,
-        76,
-        78,
-        80,
-        82,
-        80,
-        90,
-        84,
-        78,
-        80,
-        79,
-        78,
-        81,
-      ],
-    ),
-    PlayerData(
-      id: 'P004',
-      bpm: 88,
-      steps: 4120,
-      calories: 195,
-      status: 'Active',
-      heartRate: [
-        80,
-        82,
-        88,
-        94,
-        90,
-        84,
-        80,
-        86,
-        92,
-        96,
-        100,
-        106,
-        110,
-        114,
-        110,
-        104,
-        98,
-        90,
-        94,
-        96,
-        90,
-        82,
-        86,
-      ],
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: navyBlue,
-      body: SafeArea(
-        child: Row(
-          children: [
-            _buildSidebar(),
-            Expanded(
-              child: Column(
-                children: [
-                  _buildTopBar(),
-                  Expanded(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final isSmall = constraints.maxWidth < 900;
-
-                        return SingleChildScrollView(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildPageTitle(),
-                              const SizedBox(height: 20),
-                              GridView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: players.length,
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: isSmall ? 1 : 2,
-                                      crossAxisSpacing: 20,
-                                      mainAxisSpacing: 20,
-                                      childAspectRatio: isSmall ? 1.45 : 1.15,
-                                    ),
-                                itemBuilder: (context, index) =>
-                                    PlayerCard(player: players[index]),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSidebar() {
-    return Container(
-      width: 250,
-      decoration: BoxDecoration(
-        color: const Color(0xFF0B2140),
-        border: Border(right: BorderSide(color: Colors.white.withOpacity(.06))),
-      ),
-      child: Column(
-        children: [
-          // Logo
-          Container(
-            height: 86,
-            padding: const EdgeInsets.symmetric(horizontal: 28),
-            alignment: Alignment.centerLeft,
-            child: Row(
-              children: [
-                const Icon(Icons.directions_run, color: accentBlue, size: 36),
-                const SizedBox(width: 10),
-                const Text(
-                  'FitLink',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 27,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          Divider(color: Colors.white.withOpacity(.06), height: 1),
-
-          const SizedBox(height: 18),
-
-          _sidebarItem(Icons.grid_view_rounded, 'Players', selected: true),
-          _sidebarItem(Icons.access_time_rounded, 'Sessions'),
-          _sidebarItem(Icons.bar_chart_rounded, 'Analytics'),
-          _sidebarItem(Icons.description_outlined, 'Reports'),
-          _sidebarItem(Icons.settings_outlined, 'Settings'),
-
-          const Spacer(),
-
-          Padding(
-            padding: const EdgeInsets.all(28),
-            child: Row(
-              children: [
-                Icon(Icons.monitor_heart_outlined, color: accentBlue, size: 24),
-                const SizedBox(width: 10),
-                const Expanded(
-                  child: Text(
-                    'Better Data.\nStronger Players.',
-                    style: TextStyle(
-                      color: Color(0xFF9DB6D5),
-                      height: 1.5,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _sidebarItem(IconData icon, String title, {bool selected = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 4),
-      child: Container(
-        height: 52,
-        decoration: BoxDecoration(
-          color: selected ? const Color(0xFF174B8F) : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            const SizedBox(width: 16),
-            Icon(
-              icon,
-              color: selected ? Colors.white : const Color(0xFF91ACCC),
-              size: 23,
-            ),
-            const SizedBox(width: 16),
-            Text(
-              title,
-              style: TextStyle(
-                color: selected ? Colors.white : const Color(0xFF91ACCC),
-                fontSize: 16,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTopBar() {
-    return Container(
-      height: 86,
-      padding: const EdgeInsets.symmetric(horizontal: 26),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0B2344),
-        border: Border(
-          bottom: BorderSide(color: Colors.white.withOpacity(.06)),
-        ),
-      ),
-      child: Row(
-        children: [
-          const Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+    child: Column(
+      children: [
+        // Logo
+        Container(
+          height: 86,
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          alignment: Alignment.centerLeft,
+          child: Row(
             children: [
-              Text(
-                'Coach Dashboard',
+              const Icon(Icons.directions_run, color: accentBlue, size: 36),
+              const SizedBox(width: 10),
+              const Text(
+                'FitLink',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 24,
+                  fontSize: 27,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 3),
-              Text(
-                'Monitor. Guide. Improve.',
-                style: TextStyle(color: Color(0xFF91ACCC), fontSize: 14),
-              ),
             ],
           ),
+        ),
 
-          const Spacer(),
+        Divider(color: Colors.white.withOpacity(.06), height: 1),
 
-          Stack(
+        const SizedBox(height: 18),
+
+        _sidebarItem(Icons.grid_view_rounded, 'Players', selected: true),
+        _sidebarItem(Icons.access_time_rounded, 'Sessions'),
+        _sidebarItem(Icons.bar_chart_rounded, 'Analytics'),
+        _sidebarItem(Icons.description_outlined, 'Reports'),
+        _sidebarItem(Icons.settings_outlined, 'Settings'),
+
+        const Spacer(),
+
+        Padding(
+          padding: const EdgeInsets.all(28),
+          child: Row(
             children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.notifications_none_rounded,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              ),
-              Positioned(
-                right: 9,
-                top: 9,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Colors.redAccent,
-                    shape: BoxShape.circle,
+              Icon(Icons.monitor_heart_outlined, color: accentBlue, size: 24),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  'Better Data.\nStronger Players.',
+                  style: TextStyle(
+                    color: Color(0xFF9DB6D5),
+                    height: 1.5,
+                    fontSize: 14,
                   ),
                 ),
               ),
             ],
           ),
-
-          const SizedBox(width: 15),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPageTitle() {
-    return Row(
-      children: [
-        const Icon(Icons.people_alt_outlined, color: accentBlue, size: 30),
-        const SizedBox(width: 12),
-        const Text(
-          'Player Performance',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 25,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const Spacer(),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 11),
-          decoration: BoxDecoration(
-            color: const Color(0xFF102D52),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: const Row(
-            children: [
-              Icon(
-                Icons.calendar_today_outlined,
-                color: Color(0xFF9DB6D5),
-                size: 19,
-              ),
-              SizedBox(width: 10),
-              Text(
-                'Today',
-                style: TextStyle(color: Color(0xFFB6C9E0), fontSize: 15),
-              ),
-              SizedBox(width: 18),
-              Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF9DB6D5)),
-            ],
-          ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
+
+Widget _sidebarItem(IconData icon, String title, {bool selected = false}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 4),
+    child: Container(
+      height: 52,
+      decoration: BoxDecoration(
+        color: selected ? const Color(0xFF174B8F) : Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 16),
+          Icon(
+            icon,
+            color: selected ? Colors.white : const Color(0xFF91ACCC),
+            size: 23,
+          ),
+          const SizedBox(width: 16),
+          Text(
+            title,
+            style: TextStyle(
+              color: selected ? Colors.white : const Color(0xFF91ACCC),
+              fontSize: 16,
+              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget _buildTopBar() {
+  return Container(
+    height: 86,
+    padding: const EdgeInsets.symmetric(horizontal: 26),
+    decoration: BoxDecoration(
+      color: const Color(0xFF0B2344),
+      border: Border(bottom: BorderSide(color: Colors.white.withOpacity(.06))),
+    ),
+    child: Row(
+      children: [
+        const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Coach Dashboard',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 3),
+            Text(
+              'Monitor. Guide. Improve.',
+              style: TextStyle(color: Color(0xFF91ACCC), fontSize: 14),
+            ),
+          ],
+        ),
+
+        const Spacer(),
+
+        Stack(
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(
+                Icons.notifications_none_rounded,
+                color: Colors.white,
+                size: 28,
+              ),
+            ),
+            Positioned(
+              right: 9,
+              top: 9,
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Colors.redAccent,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(width: 15),
+      ],
+    ),
+  );
+}
+
+Widget _buildPageTitle() {
+  return Row(
+    children: [
+      const Icon(Icons.people_alt_outlined, color: accentBlue, size: 30),
+      const SizedBox(width: 12),
+      const Text(
+        'Player Performance',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 25,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      const Spacer(),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 11),
+        decoration: BoxDecoration(
+          color: const Color(0xFF102D52),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Row(
+          children: [
+            Icon(
+              Icons.calendar_today_outlined,
+              color: Color(0xFF9DB6D5),
+              size: 19,
+            ),
+            SizedBox(width: 10),
+            Text(
+              'Today',
+              style: TextStyle(color: Color(0xFFB6C9E0), fontSize: 15),
+            ),
+            SizedBox(width: 18),
+            Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF9DB6D5)),
+          ],
+        ),
+      ),
+    ],
+  );
 }
 
 // ============================================================
@@ -831,4 +621,231 @@ class HeartRatePainter extends CustomPainter {
   bool shouldRepaint(covariant HeartRatePainter oldDelegate) {
     return oldDelegate.values != values;
   }
+}
+
+class CoachDashboardScreen extends StatefulWidget {
+  const CoachDashboardScreen({super.key});
+
+  @override
+  State<CoachDashboardScreen> createState() => _CoachDashboardScreenState();
+}
+
+class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
+  final WearableService _wearableService = WearableService();
+
+  // This is the list consumed by GridView.builder.
+  List<PlayerData> players = [];
+
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchWearableData();
+  }
+
+  Future<void> fetchWearableData() async {
+    try {
+      // Fetch the wearable readings from your service.
+      final reading = await _wearableService.getWearableData('P001');
+
+      debugPrint('WEARABLE READINGS: $reading');
+
+      // Convert the service response into PlayerData objects.
+      final List<PlayerData> fetchedPlayers = _parseWearableReadings(reading);
+
+      if (!mounted) return;
+
+      setState(() {
+        players = fetchedPlayers;
+        isLoading = false;
+        errorMessage = null;
+      });
+    } catch (e, stackTrace) {
+      debugPrint('ERROR FETCHING WEARABLE DATA: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+        errorMessage = e.toString();
+      });
+    }
+  }
+
+  List<PlayerData> _parseWearableReadings(dynamic reading) {
+    // Support an API response wrapped in a "data" field.
+    dynamic payload = reading;
+
+    if (payload is Map && payload.containsKey('data')) {
+      payload = payload['data'];
+    }
+
+    // The API may return one reading or a list of readings.
+    final List<dynamic> records;
+
+    if (payload is List) {
+      records = payload;
+    } else if (payload is Map) {
+      records = [payload];
+    } else {
+      throw const FormatException(
+        'Unexpected wearable readings response format.',
+      );
+    }
+
+    return records.map((record) {
+      if (record is! Map) {
+        throw const FormatException(
+          'A wearable reading must be a JSON object.',
+        );
+      }
+
+      final data = Map<String, dynamic>.from(record);
+
+      // Adjust these keys to match your actual API response.
+      final rawHeartRate = data['heartRate'] ?? data['heart_rate'] ?? [];
+
+      final heartRates = rawHeartRate is List
+          ? rawHeartRate.map((value) => _toDouble(value)).toList()
+          : <double>[];
+
+      final bpm = _toInt(
+        data['bpm'] ??
+            data['heartRateBpm'] ??
+            data['heart_rate_bpm'] ??
+            (heartRates.isNotEmpty ? heartRates.last : 0),
+      );
+
+      return PlayerData(
+        id: (data['playerId'] ?? data['player_id'] ?? data['id'] ?? 'P001')
+            .toString(),
+        bpm: bpm,
+        steps: _toInt(data['steps'] ?? data['totalSteps']),
+        calories: _toInt(data['calories'] ?? data['totalCalories']),
+        status: (data['status'] ?? 'Active').toString(),
+        heartRate: heartRates,
+      );
+    }).toList();
+  }
+
+  int _toInt(dynamic value) {
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  double _toDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0.0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: navyBlue,
+      body: SafeArea(
+        child: Row(
+          children: [
+            _buildSidebar(),
+            Expanded(
+              child: Column(
+                children: [
+                  _buildTopBar(),
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isSmall = constraints.maxWidth < 900;
+
+                        return SingleChildScrollView(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildPageTitle(),
+                              const SizedBox(height: 20),
+
+                              if (isLoading)
+                                const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(40),
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                              else if (errorMessage != null)
+                                Center(
+                                  child: Column(
+                                    children: [
+                                      const Icon(
+                                        Icons.error_outline,
+                                        color: Colors.redAccent,
+                                        size: 40,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Failed to load wearable data',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        errorMessage!,
+                                        style: const TextStyle(
+                                          color: Colors.white70,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      ElevatedButton(
+                                        onPressed: fetchWearableData,
+                                        child: const Text('Retry'),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              else if (players.isEmpty)
+                                const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(40),
+                                    child: Text(
+                                      'No wearable readings available.',
+                                      style: TextStyle(color: Colors.white70),
+                                    ),
+                                  ),
+                                )
+                              else
+                                GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: players.length,
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: isSmall ? 1 : 2,
+                                        crossAxisSpacing: 20,
+                                        mainAxisSpacing: 20,
+                                        childAspectRatio: isSmall ? 1.45 : 1.15,
+                                      ),
+                                  itemBuilder: (context, index) {
+                                    return PlayerCard(player: players[index]);
+                                  },
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Keep your existing _buildSidebar(), _buildTopBar(),
+  // _buildPageTitle(), and _sidebarItem() methods here.
 }
