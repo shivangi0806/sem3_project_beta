@@ -5,16 +5,26 @@ import 'package:fitlink/core/services/coach_service.dart';
 //import 'coach_cubit_state.dart';
 
 part 'coach_cubit_state.dart';
+
 class CoachCubitCubit extends Cubit<CoachCubitState> {
   final CoachService apiService;
   CoachCubitCubit(this.apiService) : super(CoachCubitInitial());
-  Future<void> getPlayers() async{
+  Future<void> getDashboardData() async {
     emit(CoachLoading());
-    try{
-        final players = await apiService.getPlayers();
-        emit(CoachSucccess(players));
-    }catch(e){
-        emit(CoachError(e.toString()));
+    try {
+      emit(CoachDashboarSuccessState(data: []));
+    } catch (e) {
+      emit(CoachError(e.toString()));
+    }
+  }
+
+  Future<void> getPlayers() async {
+    emit(CoachLoading());
+    try {
+      final players = await apiService.getPlayers();
+      emit(CoachSucccess(players));
+    } catch (e) {
+      emit(CoachError(e.toString()));
     }
   }
 }
