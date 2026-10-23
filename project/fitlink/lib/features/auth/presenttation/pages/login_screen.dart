@@ -246,34 +246,67 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 25),
 
                     // Register
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          "Don't have an account? ",
-                          style: TextStyle(color: Colors.white70),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            // We will navigate to RegisterScreen later
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const RegisterScreen(),
-                                //AdminDashboardScreen()
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            'Register',
-                            style: TextStyle(
-                              color: accentBlue,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+        //             Row(
+        //               mainAxisAlignment: MainAxisAlignment.center,
+        //               children: [
+        //                 const Text(
+        //                   "Don't have an account? ",   overflow: TextOverflow.ellipsis,
+        // maxLines: 1,
+        //                   style: TextStyle(color: Colors.white70),
+        //                 ),
+        //                 TextButton(
+        //                   onPressed: () {
+        //                     // We will navigate to RegisterScreen later
+        //                     Navigator.push(
+        //                       context,
+        //                       MaterialPageRoute(
+        //                         builder: (context) => const RegisterScreen(),
+        //                         //AdminDashboardScreen()
+        //                       ),
+        //                     );
+        //                   },
+        //                   child: const Text(
+        //                     'Register',
+        //                     style: TextStyle(
+        //                       color: accentBlue,
+        //                       fontWeight: FontWeight.bold,
+        //                     ),
+        //                   ),
+        //                 ),
+        //               ],
+        //             ),
+
+        // Register
+Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    const Flexible(
+      child: Text(
+        "Don't have an account?",
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
+        style: TextStyle(color: Colors.white70),
+      ),
+    ),
+    TextButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const RegisterScreen(),
+          ),
+        );
+      },
+      child: const Text(
+        'Register',
+        style: TextStyle(
+          color: accentBlue,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+  ],
+),
 
                     const SizedBox(height: 30),
                   ],

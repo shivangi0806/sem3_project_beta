@@ -235,12 +235,12 @@ content: Text(state.message),
 
                 items: const [
                   DropdownMenuItem(
-                    value: "COACH",
+                    value: "ROLE_COACH",
                     child: Text("Coach"),
                   ),
                   DropdownMenuItem(
-                    value: "ADMIN",
-                    child: Text("Admin"),
+                    value: "ROLE_PLAYER",
+                    child: Text("Player"),
                   ),
                 ],
 

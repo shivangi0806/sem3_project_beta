@@ -528,7 +528,7 @@ class _CoachdashboardScreenState extends State<CoachdashboardScreen> {
       width: width,
       height: 450,
       child: const Text(
-        'Live wearable summary',
+        '',
         style: TextStyle(color: Colors.white54, fontSize: 12),
       ),
     ),

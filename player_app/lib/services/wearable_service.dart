@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 class WearableService {
   //static const String baseUrl = 'http://localhost:5000/api';
   // static const String baseUrl = 'http://192.168.0.101:5000/api';
-  static const String baseUrl = 'http://192.168.1.106:5000/api';
+  static const String baseUrl = 'http://192.168.1.101:5000/api';
 
 Future<List<dynamic>> getWearableData(String playerId) async {
   // static const String baseUrl = 

@@ -25,7 +25,7 @@ class ApiService {
       Uri.parse("$baseUrl/auth/register"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
-        "name": name,
+        "username": name,
         "email": email,
         "password": password,
         "roleId": roleId,

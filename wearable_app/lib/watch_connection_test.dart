@@ -69,7 +69,7 @@ Future<void> _sendTestMessage() async {
       'message': 'Hello from FitLink Watch!',
       'timestamp': DateTime.now().toIso8601String(),
     };
-
+     debugPrint('SENDING TEST MESSAGE: $message');
     debugPrint('Sending: $message');
     await _watchConnectivity.sendMessage(message);
 
@@ -143,6 +143,7 @@ body: SafeArea(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _sending ? null : _sendTestMessage,
+              
               child: Text(
                 _sending ? 'Sending...' : 'Send Test',
                 textAlign: TextAlign.center,
@@ -150,6 +151,7 @@ body: SafeArea(
               ),
             ),
           ),
+          
         ],
       ),
     ),

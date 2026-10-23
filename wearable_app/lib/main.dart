@@ -386,6 +386,16 @@ class _WatchHomePageState extends State<WatchHomePage> {
   final WatchConnectivity _watchConnectivity = WatchConnectivity();
 
   StreamSubscription<dynamic>? _workoutSubscription;
+  StreamSubscription<dynamic>? _messageSubscription;
+
+String? _assignedExerciseName;
+int? _assignedSets;
+int? _assignedReps;
+int? _assignedDurationSeconds;
+
+//String _playerId = 'Player ID unavailable';
+bool _isWorkoutStarted = false;
+bool _isStartingWorkout = false;
 
   bool _isSending = false;
   String _message = 'Collecting workout readings...';
@@ -398,9 +408,54 @@ class _WatchHomePageState extends State<WatchHomePage> {
   void initState() {
     super.initState();
     _listenToWorkout();
-    startWorkout();
+    _listenForAssignedWorkout();
+
+    //startWorkout();
+    // startWorkout();
   }
 
+void _listenForAssignedWorkout() {
+  _messageSubscription =
+      _watchConnectivity.messageStream.listen(
+    (message) {
+      debugPrint('WATCH RECEIVED MESSAGE: $message');
+      if (message is! Map) return;
+
+      if (message['type'] != 'start_workout') {
+  debugPrint('IGNORED MESSAGE TYPE: ${message['type']}');
+  return;
+}
+
+      debugPrint('ASSIGNED WORKOUT RECEIVED: $message');
+
+      if (!mounted) return;
+
+      setState(() {
+      //   _playerId = message['playerId']?.toString()
+      // ?? 'Player ID unavailable';
+        _assignedExerciseName =
+            message['exerciseName']?.toString();
+
+        _assignedSets = int.tryParse(
+          message['sets']?.toString() ?? '',
+        );
+
+        _assignedReps = int.tryParse(
+          message['reps']?.toString() ?? '',
+        );
+
+        _assignedDurationSeconds = int.tryParse(
+          message['durationSeconds']?.toString() ?? '',
+        );
+
+        _message = 'Assigned workout received!';
+      });
+    },
+    onError: (error) {
+      debugPrint('ASSIGNMENT MESSAGE ERROR: $error');
+    },
+  );
+}
   void _listenToWorkout() {
     _workoutSubscription = _workout.stream.listen(
       (reading) {
@@ -431,31 +486,151 @@ class _WatchHomePageState extends State<WatchHomePage> {
     );
   }
 
-  Future<void> startWorkout() async {
-    try {
-      final result = await _workout.start(
-        exerciseType:
-         ExerciseType.runningTreadmill,
-        features: [
-          WorkoutFeature.heartRate,
-          WorkoutFeature.steps,
-          WorkoutFeature.calories,
-        ],
-        enableGps: false,
-      );
+//   Future<void> startWorkout() async {
+//     try {
+//       debugPrint(
+//   'ALL PACKAGE EXERCISE TYPES: '
+//   '${ExerciseType.values.map((e) => e.name).join(', ')}',
+// );
 
-      debugPrint('WORKOUT START RESULT: $result');
-      debugPrint('UNSUPPORTED FEATURES: ${result.unsupportedFeatures}');
-    } catch (error, stackTrace) {
-      debugPrint('WORKOUT START ERROR: $error');
-      debugPrintStack(stackTrace: stackTrace);
+// final supportedTypes =
+//     await _workout.getSupportedExerciseTypes();
 
-      if (!mounted) return;
+// debugPrint('SUPPORTED BY THIS WATCH: $supportedTypes');
+//       final result = await _workout.start(
+//         exerciseType:
+//          ExerciseType.runningTreadmill,
+//         features: [
+//           WorkoutFeature.heartRate,
+//           WorkoutFeature.steps,
+//           WorkoutFeature.calories,
+//         ],
+//         enableGps: false,
+//       );
+
+//       debugPrint('WORKOUT START RESULT: $result');
+//       debugPrint('UNSUPPORTED FEATURES: ${result.unsupportedFeatures}');
+//     } catch (error, stackTrace) {
+//       debugPrint('WORKOUT START ERROR: $error');
+//       debugPrintStack(stackTrace: stackTrace);
+
+//       if (!mounted) return;
+//       setState(() {
+//         _message = 'Could not start workout tracking';
+//       });
+//     }
+//   }
+// Future<void> startWorkout() async {
+//   if (!_isWorkoutStarted ||
+//     _isSending ||
+//     _steps == null ||
+//     _calories == null) {
+//   return;
+// }
+//   if (_isWorkoutStarted || _isStartingWorkout) return;
+
+//   setState(() {
+//     _isStartingWorkout = true;
+//     _message = 'Starting workout...';
+//   });
+
+//   try {
+//     final result = await _workout.start(
+//       exerciseType: ExerciseType.runningTreadmill,
+//       features: [
+//         WorkoutFeature.heartRate,
+//         WorkoutFeature.steps,
+//         WorkoutFeature.calories,
+//       ],
+//       enableGps: false,
+//     );
+
+//     debugPrint('WORKOUT START RESULT: $result');
+//     debugPrint('UNSUPPORTED FEATURES: ${result.unsupportedFeatures}');
+
+//     if (!mounted) return;
+
+//     setState(() {
+//       _isWorkoutStarted = true;
+//       _message = 'Workout started! Collecting readings...';
+//     });
+//   } catch (error, stackTrace) {
+//     debugPrint('WORKOUT START ERROR: $error');
+//     debugPrintStack(stackTrace: stackTrace);
+
+//     if (!mounted) return;
+
+//     setState(() {
+//       _message = 'Could not start workout tracking';
+//     });
+//   } finally {
+//     if (mounted) {
+//       setState(() {
+//         _isStartingWorkout = false;
+//       });
+//     }
+//   }
+// }
+
+Future<void> startWorkout() async {
+  debugPrint('START WORKOUT BUTTON PRESSED');
+
+  if (_isWorkoutStarted || _isStartingWorkout) {
+    debugPrint('Workout already started or starting');
+    return;
+  }
+
+  setState(() {
+    _isStartingWorkout = true;
+    _message = 'Starting workout...';
+  });
+
+  try {
+    debugPrint('Checking supported exercise types...');
+
+    final supportedTypes =
+        await _workout.getSupportedExerciseTypes();
+
+    debugPrint('SUPPORTED EXERCISES: $supportedTypes');
+
+    final result = await _workout.start(
+      exerciseType: ExerciseType.runningTreadmill,
+      features: [
+        WorkoutFeature.heartRate,
+        WorkoutFeature.steps,
+        WorkoutFeature.calories,
+      ],
+      enableGps: false,
+    );
+
+    debugPrint('WORKOUT START RESULT: $result');
+    debugPrint(
+      'UNSUPPORTED FEATURES: ${result.unsupportedFeatures}',
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      _isWorkoutStarted = true;
+      _message = 'Workout started! Collecting readings...';
+    });
+  } catch (error, stackTrace) {
+    debugPrint('WORKOUT START ERROR: $error');
+    debugPrintStack(stackTrace: stackTrace);
+
+    if (!mounted) return;
+
+    setState(() {
+      _message = 'Workout failed: $error';
+    });
+  } finally {
+    if (mounted) {
       setState(() {
-        _message = 'Could not start workout tracking';
+        _isStartingWorkout = false;
       });
     }
   }
+}
 
   Future<void> _sendWorkoutData() async {
     if (_isSending || _steps == null || _calories == null) {
@@ -488,12 +663,13 @@ class _WatchHomePageState extends State<WatchHomePage> {
       // 10.0.2.2 is for an Android emulator reaching the host computer.
       final response = await http
           .post(
-            // Uri.parse(
-            //   'http://10.0.2.2:5000/api/wearable/data',
-            // ),
             Uri.parse(
-  'http://10.0.2.2:5999/api/wearable/data',
-),
+              'http://10.0.2.2:5000/api/wearable/data',
+            ),
+            // for fallback
+              //             Uri.parse(
+              //   'http://10.0.2.2:5999/api/wearable/data',
+              // ),
             headers: {
               'Content-Type': 'application/json',
             },
@@ -580,88 +756,142 @@ class _WatchHomePageState extends State<WatchHomePage> {
   @override
   void dispose() {
     _workoutSubscription?.cancel();
+    //_workoutSubscription?.cancel();
+  _messageSubscription?.cancel();
     super.dispose();
   }
 
   @override
   
 @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: navyBlueMid,
-    body: SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 10,
-          vertical: 4,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'FITLINK',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,color: Colors.white
-              ),
-            ),
-            const Text('P001'),
-            const SizedBox(height: 8),
-
-            Text(
-              '❤️ ${(_heartRate ?? 80).round()} BPM'
-              '${_heartRate == null ? ' *' : ''}',
-              style: const TextStyle(fontSize: 12,color: Colors.white ),
-              
-            ),
-            Text(
-              '👣 ${_steps?.round() ?? '--'} steps',
-              style: const TextStyle(fontSize: 12,color: Colors.white),
-            ),
-            Text(
-              '🔥 ${_calories?.round() ?? '--'} kcal',
-              style: const TextStyle(fontSize: 12,color: Colors.white),
-            ),
-
-            const SizedBox(height: 10),
-        
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isSending ||
-                        _steps == null ||
-                        _calories == null
-                    ? null
-                    : _sendWorkoutData,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                  ),backgroundColor: accentBlue
-                ),
-                child: Text(
-                  _isSending ? 'Sending...' : 'SEND',
-                  style: const TextStyle(fontSize: 12,color: Colors.white),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 6),
-
-            Flexible(
-              child: SingleChildScrollView(
-                child: Text(
-                  _message,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 10,color: Colors.white),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
+// Widget build(BuildContext context) {
+//   return Scaffold(
+//     backgroundColor: navyBlueMid,
+//     body: SafeArea(
+//       child: Column(
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [
+//           const Text(
+//             'FITLINK',
+//             style: TextStyle(
+//               fontSize: 18,
+//               fontWeight: FontWeight.bold,color: Colors.white
+//             ),
+//           ),
+//           const Text('P001'),
+//           const SizedBox(height:3),
+      
+//       Text(
+//         _assignedExerciseName ?? 'No exercise assigned',
+//         textAlign: TextAlign.center,
+//         style: const TextStyle(
+//           fontSize: 12,
+//           fontWeight: FontWeight.bold,
+//           color: Colors.white,
+//         ),
+//       ),
+      
+//       if (_assignedExerciseName != null) ...[
+//         Text(
+//           'Sets: ${_assignedSets ?? '-'}  '
+//           'Reps: ${_assignedReps ?? '-'}',
+//           style: const TextStyle(
+//             fontSize: 10,
+//             color: Colors.white,
+//           ),
+//         ),
+      
+//         if (_assignedDurationSeconds != null)
+//           Text(
+//             'Duration: ${_assignedDurationSeconds}s',
+//             style: const TextStyle(
+//       fontSize: 10,
+//       color: Colors.white,
+//             ),
+//           ),
+//       ],
+      
+//       const SizedBox(height: 8),
+//           const SizedBox(height: 8),
+//           SizedBox(
+//         width: double.infinity,
+//         child: ElevatedButton(
+//           onPressed: _isWorkoutStarted || _isStartingWorkout
+//       ? null
+//       : startWorkout,
+//           style: ElevatedButton.styleFrom(
+//             backgroundColor: accentBlue,
+//             padding: const EdgeInsets.symmetric(vertical: 8),
+//           ),
+//           child: Text(
+//             _isStartingWorkout
+//         ? 'STARTING...'
+//         : _isWorkoutStarted
+//             ? 'WORKOUT STARTED'
+//             : 'START WORKOUT',
+//             style: const TextStyle(
+//       fontSize: 12,
+//       color: Colors.white,
+//             ),
+//           ),
+//         ),
+//       ),
+      
+//       const SizedBox(height: 8),
+      
+//           Text(
+//             '❤️ ${(_heartRate ?? 80).round()} BPM'
+//             '${_heartRate == null ? ' *' : ''}',
+//             style: const TextStyle(fontSize: 12,color: Colors.white ),
+            
+//           ),
+//           Text(
+//             '👣 ${_steps?.round() ?? '--'} steps',
+//             style: const TextStyle(fontSize: 12,color: Colors.white),
+//           ),
+//           Text(
+//             '🔥 ${_calories?.round() ?? '--'} kcal',
+//             style: const TextStyle(fontSize: 12,color: Colors.white),
+//           ),
+      
+//           const SizedBox(height: 10),
+      
+//           SizedBox(
+//             width: double.infinity,
+//             child: ElevatedButton(
+//               onPressed: _isSending ||
+//                       _steps == null ||
+//                       _calories == null
+//                   ? null
+//                   : _sendWorkoutData,
+//               style: ElevatedButton.styleFrom(
+//                 padding: const EdgeInsets.symmetric(
+//                   vertical: 8,
+//                 ),backgroundColor: accentBlue
+//               ),
+//               child: Text(
+//                 _isSending ? 'Sending...' : 'SEND',
+//                 style: const TextStyle(fontSize: 12,color: Colors.white),
+//               ),
+//             ),
+//           ),
+      
+//           const SizedBox(height: 6),
+      
+//           Flexible(
+//             child: SingleChildScrollView(
+//               child: Text(
+//                 _message,
+//                 textAlign: TextAlign.center,
+//                 style: const TextStyle(fontSize: 10,color: Colors.white),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     ),
+//   );
+// }
 
   // Widget build(BuildContext context) {
   //   return Scaffold(
@@ -715,4 +945,170 @@ Widget build(BuildContext context) {
   //     ),
   //   );
   // }
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: navyBlueMid,
+    body: SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: 4,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text(
+              'FITLINK',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+
+            // const Text(
+            //   'P001',
+            //   style: TextStyle(
+            //     fontSize: 10,
+            //     color: Colors.white,
+            //   ),
+            // ),
+//             Text(
+//   _playerId,
+//   textAlign: TextAlign.center,
+//   style: const TextStyle(
+//     fontSize: 9,
+//     color: Colors.white,
+//   ),
+// ),
+
+            const SizedBox(height: 10),
+
+            Text(
+              _assignedExerciseName ?? 'No exercise assigned',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+
+            if (_assignedExerciseName != null) ...[
+              Text(
+                'Sets: ${_assignedSets ?? '-'}  '
+                'Reps: ${_assignedReps ?? '-'}',
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Colors.white,
+                ),
+              ),
+
+              if (_assignedDurationSeconds != null)
+                Text(
+                  'Duration: ${_assignedDurationSeconds}s',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: Colors.white,
+                  ),
+                ),
+            ],
+
+            const SizedBox(height: 6),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isStartingWorkout || _isWorkoutStarted
+                    ? null
+                    : startWorkout,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: accentBlue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  minimumSize: const Size(0, 32),
+                ),
+                child: Text(
+                  _isStartingWorkout
+                      ? 'STARTING...'
+                      : _isWorkoutStarted
+                          ? 'WORKOUT STARTED'
+                          : 'START WORKOUT',
+                  style: const TextStyle(fontSize: 11),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 6),
+
+            Text(
+              '❤️ ${(_heartRate ?? 80).round()} BPM'
+              '${_heartRate == null ? ' *' : ''}',
+              style: const TextStyle(
+                fontSize: 11,
+                color: Colors.white,
+              ),
+            ),
+
+            Text(
+              '👣 ${_steps?.round() ?? '--'} steps',
+              style: const TextStyle(
+                fontSize: 11,
+                color: Colors.white,
+              ),
+            ),
+
+            Text(
+              '🔥 ${_calories?.round() ?? '--'} kcal',
+              style: const TextStyle(
+                fontSize: 11,
+                color: Colors.white,
+              ),
+            ),
+
+            const SizedBox(height: 6),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: !_isWorkoutStarted ||
+                        _isSending ||
+                        _steps == null ||
+                        _calories == null
+                    ? null
+                    : _sendWorkoutData,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: accentBlue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  minimumSize: const Size(0, 32),
+                ),
+                child: Text(
+                  _isSending ? 'SENDING...' : 'SEND',
+                  style: const TextStyle(fontSize: 11),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 4),
+
+            Text(
+              _message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 9,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 }
