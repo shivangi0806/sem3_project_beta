@@ -410,6 +410,7 @@ import '../auth/cubit/auth_cubit.dart';
 import '../auth/screens/login_screen.dart';
 import 'package:player_app/core/service/api_service.dart';
 
+import 'watch_pairing_scanner.dart';
 // import 'dart:async';
 // import 'package:watch_connectivity/watch_connectivity.dart';
 
@@ -799,6 +800,10 @@ Future<void> _sendAssignedWorkout({
     setState(() {
       _watchStatus = 'Sending $exerciseName to watch...';
     });
+    debugPrint('WATCH SUPPORTED: ${await _watchConnectivity.isSupported}');
+debugPrint('WATCH PAIRED: ${await _watchConnectivity.isPaired}');
+debugPrint('WATCH REACHABLE: ${await _watchConnectivity.isReachable}');
+debugPrint('SENDING ASSIGNMENT: $exerciseName');
 
     await _watchConnectivity.sendMessage({
       'type': 'start_workout',
@@ -851,7 +856,7 @@ Future<void> _sendAssignedWorkout({
     }
 
     final incoming = Map<String, dynamic>.from(message);
-
+     debugPrint('ACTUAL PLAYER ID: ${widget.session.user.userId}');
     if (incoming['type'] != 'workout_sync') {
       if (mounted) {
         setState(() {
@@ -1177,7 +1182,91 @@ Future<void> _loadAssignedSessions() async {
             icon: const Icon(Icons.logout_rounded),
           ),
         ],
+        leading: Builder(
+  builder: (context) => IconButton(
+    icon: const Icon(Icons.menu_rounded),
+    onPressed: () => Scaffold.of(context).openDrawer(),
+  ),
+),
       ),
+      drawer: Drawer(
+  backgroundColor: const Color(0xFF132F4C),
+  child: SafeArea(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        UserAccountsDrawerHeader(
+          decoration: const BoxDecoration(
+            color: Color(0xFF0A1929),
+          ),
+          currentAccountPicture: const CircleAvatar(
+            backgroundColor: Color(0xFF294764),
+            child: Icon(
+              Icons.person,
+              color: Colors.white,
+              size: 32,
+            ),
+          ),
+          accountName: Text(player.username),
+          accountEmail: Text(player.email),
+        ),
+
+        ListTile(
+          leading: const Icon(
+            Icons.qr_code_scanner,
+            color: Color(0xFF75B8FF),
+          ),
+          title: const Text(
+            'Pair Watch',
+            style: TextStyle(color: Colors.white),
+          ),
+          subtitle: const Text(
+            'Connect your FitLink wearable',
+            style: TextStyle(color: Colors.white70),
+          ),
+          onTap: () async {
+            Navigator.pop(context);
+
+            final paired = await Navigator.push<bool>(
+              context,
+              MaterialPageRoute(
+                builder: (_) => WatchPairingScanner(
+                  session: widget.session,
+                ),
+              ),
+            );
+
+            if (paired == true && mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Your watch is connected!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          },
+        ),
+
+        const Divider(color: Color(0xFF294764)),
+
+        ListTile(
+          leading: const Icon(
+            Icons.logout_rounded,
+            color: Colors.redAccent,
+          ),
+          title: const Text(
+            'Log out',
+            style: TextStyle(color: Colors.white),
+          ),
+          onTap: () {
+            Navigator.pop(context);
+            _logout(context);
+          },
+        ),
+      ],
+    ),
+  ),
+),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),

@@ -352,6 +352,10 @@ import 'package:http/http.dart' as http;
 import 'package:watch_connectivity/watch_connectivity.dart';
 import 'package:wearable_app/theme/theme.dart';
 import 'package:workout/workout.dart';
+import 'package:wearable_app/screen/workout_screen.dart';
+
+import 'watch_pairing_service.dart';
+import 'screen/watch_pairing_screen.dart';
 
 void main() {
   runApp(const FitLinkWatchApp());
@@ -382,110 +386,35 @@ class WatchHomePage extends StatefulWidget {
 }
 
 class _WatchHomePageState extends State<WatchHomePage> {
-  final Workout _workout = Workout();
-  final WatchConnectivity _watchConnectivity = WatchConnectivity();
-
-  StreamSubscription<dynamic>? _workoutSubscription;
-  StreamSubscription<dynamic>? _messageSubscription;
-
+ 
+ 
 String? _assignedExerciseName;
 int? _assignedSets;
 int? _assignedReps;
 int? _assignedDurationSeconds;
 
-//String _playerId = 'Player ID unavailable';
-bool _isWorkoutStarted = false;
+ bool _isWorkoutStarted = false;
 bool _isStartingWorkout = false;
+final Workout _workout = Workout();
+String _message="DATA";
 
-  bool _isSending = false;
-  String _message = 'Collecting workout readings...';
+final WatchConnectivity _watchConnectivity = WatchConnectivity();
+StreamSubscription<dynamic>? _messageSubscription;
+Future<void> testWatchPairing() async {
+  try {
+    final registered =
+        await WatchPairingService.registerWatch();
 
-  double? _heartRate;
-  double? _steps;
-  double? _calories;
+    if (registered) {
+      final qrData =
+          await WatchPairingService.generatePairingQR();
 
-  @override
-  void initState() {
-    super.initState();
-    _listenToWorkout();
-    _listenForAssignedWorkout();
-
-    //startWorkout();
-    // startWorkout();
+      debugPrint('PAIRING QR DATA: $qrData');
+    }
+  } catch (e) {
+    debugPrint('PAIRING ERROR: $e');
   }
-
-void _listenForAssignedWorkout() {
-  _messageSubscription =
-      _watchConnectivity.messageStream.listen(
-    (message) {
-      debugPrint('WATCH RECEIVED MESSAGE: $message');
-      if (message is! Map) return;
-
-      if (message['type'] != 'start_workout') {
-  debugPrint('IGNORED MESSAGE TYPE: ${message['type']}');
-  return;
 }
-
-      debugPrint('ASSIGNED WORKOUT RECEIVED: $message');
-
-      if (!mounted) return;
-
-      setState(() {
-      //   _playerId = message['playerId']?.toString()
-      // ?? 'Player ID unavailable';
-        _assignedExerciseName =
-            message['exerciseName']?.toString();
-
-        _assignedSets = int.tryParse(
-          message['sets']?.toString() ?? '',
-        );
-
-        _assignedReps = int.tryParse(
-          message['reps']?.toString() ?? '',
-        );
-
-        _assignedDurationSeconds = int.tryParse(
-          message['durationSeconds']?.toString() ?? '',
-        );
-
-        _message = 'Assigned workout received!';
-      });
-    },
-    onError: (error) {
-      debugPrint('ASSIGNMENT MESSAGE ERROR: $error');
-    },
-  );
-}
-  void _listenToWorkout() {
-    _workoutSubscription = _workout.stream.listen(
-      (reading) {
-        debugPrint(
-          'WORKOUT READING: ${reading.feature} = ${reading.value}',
-        );
-
-        if (!mounted) return;
-
-        setState(() {
-          if (reading.feature == WorkoutFeature.heartRate) {
-            _heartRate = reading.value;
-          } else if (reading.feature == WorkoutFeature.steps) {
-            _steps = reading.value;
-          } else if (reading.feature == WorkoutFeature.calories) {
-            _calories = reading.value;
-          }
-        });
-      },
-      onError: (error) {
-        debugPrint('WORKOUT STREAM ERROR: $error');
-
-        if (!mounted) return;
-        setState(() {
-          _message = 'Error reading workout data';
-        });
-      },
-    );
-  }
-
 //   Future<void> startWorkout() async {
 //     try {
 //       debugPrint(
@@ -572,197 +501,7 @@ void _listenForAssignedWorkout() {
 //   }
 // }
 
-Future<void> startWorkout() async {
-  debugPrint('START WORKOUT BUTTON PRESSED');
 
-  if (_isWorkoutStarted || _isStartingWorkout) {
-    debugPrint('Workout already started or starting');
-    return;
-  }
-
-  setState(() {
-    _isStartingWorkout = true;
-    _message = 'Starting workout...';
-  });
-
-  try {
-    debugPrint('Checking supported exercise types...');
-
-    final supportedTypes =
-        await _workout.getSupportedExerciseTypes();
-
-    debugPrint('SUPPORTED EXERCISES: $supportedTypes');
-
-    final result = await _workout.start(
-      exerciseType: ExerciseType.runningTreadmill,
-      features: [
-        WorkoutFeature.heartRate,
-        WorkoutFeature.steps,
-        WorkoutFeature.calories,
-      ],
-      enableGps: false,
-    );
-
-    debugPrint('WORKOUT START RESULT: $result');
-    debugPrint(
-      'UNSUPPORTED FEATURES: ${result.unsupportedFeatures}',
-    );
-
-    if (!mounted) return;
-
-    setState(() {
-      _isWorkoutStarted = true;
-      _message = 'Workout started! Collecting readings...';
-    });
-  } catch (error, stackTrace) {
-    debugPrint('WORKOUT START ERROR: $error');
-    debugPrintStack(stackTrace: stackTrace);
-
-    if (!mounted) return;
-
-    setState(() {
-      _message = 'Workout failed: $error';
-    });
-  } finally {
-    if (mounted) {
-      setState(() {
-        _isStartingWorkout = false;
-      });
-    }
-  }
-}
-
-  Future<void> _sendWorkoutData() async {
-    if (_isSending || _steps == null || _calories == null) {
-      return;
-    }
-
-    setState(() {
-      _isSending = true;
-      _message = 'Sending workout data...';
-    });
-
-    final recordedAt = DateTime.now().toUtc().toIso8601String();
-
-    // Temporary fallback until the real heart-rate sensor works.
-    final int bpm = (_heartRate ?? 80).round();
-
-    final Map<String, dynamic> data = {
-      'playerId': 'P001',
-      'heartRate': bpm,
-      'steps': _steps!.round(),
-      'calories': _calories!.round(),
-      'recordedAt': recordedAt,
-      'syncId': '${recordedAt}_P001',
-    };
-
-    debugPrint('WORKOUT DATA TO SEND: $data');
-
-    try {
-      // First attempt: send directly to the backend.
-      // 10.0.2.2 is for an Android emulator reaching the host computer.
-      final response = await http
-          .post(
-            Uri.parse(
-              'http://10.0.2.2:5000/api/wearable/data',
-            ),
-            // for fallback
-              //             Uri.parse(
-              //   'http://10.0.2.2:5999/api/wearable/data',
-              // ),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: jsonEncode(data),
-          )
-          .timeout(const Duration(seconds: 5));
-
-      debugPrint('BACKEND STATUS: ${response.statusCode}');
-      debugPrint('BACKEND RESPONSE: ${response.body}');
-
-      // if (response.statusCode >= 200 &&
-      //     response.statusCode < 300) {
-      //   if (!mounted) return;
-      //   setState(() {
-      //     _message = 'Sent directly to dashboard!';
-      //   });
-      //   return;
-      // }
-      if (response.statusCode >= 200 &&
-    response.statusCode < 300) {
-  debugPrint('WORKOUT UPLOAD SUCCESSFUL');
-
-  if (mounted) {
-    setState(() {
-      _message = 'Data synced successfully!';
-    });
-  }
-  return;
-}
-
-      // The server responded, so this is an API/server error,
-      // not necessarily a connectivity failure.
-      if (!mounted) return;
-      setState(() {
-        _message = 'Backend rejected data: ${response.statusCode}';
-      });
-    } on TimeoutException catch (error) {
-      debugPrint('BACKEND TIMEOUT: $error');
-      await _sendToPhone(data);
-    } on http.ClientException catch (error) {
-      debugPrint('BACKEND CONNECTION ERROR: $error');
-      await _sendToPhone(data);
-    } catch (error) {
-      debugPrint('BACKEND REQUEST ERROR: $error');
-      await _sendToPhone(data);
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSending = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _sendToPhone(Map<String, dynamic> data) async {
-    if (mounted) {
-      setState(() {
-        _message = 'Backend unavailable. Trying phone...';
-      });
-    }
-
-    try {
-      await _watchConnectivity.sendMessage({
-        'type': 'workout_sync',
-        ...data,
-      });
-
-      debugPrint('WORKOUT MESSAGE SENT TO PHONE');
-
-      if (!mounted) return;
-      setState(() {
-        _message = 'Sent to phone. Sync from phone when online.';
-      });
-    } catch (error) {
-      debugPrint('PHONE FALLBACK FAILED: $error');
-
-      if (!mounted) return;
-      setState(() {
-        _message = 'Could not send to phone. Retry required.';
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _workoutSubscription?.cancel();
-    //_workoutSubscription?.cancel();
-  _messageSubscription?.cancel();
-    super.dispose();
-  }
-
-  @override
-  
 @override
 // Widget build(BuildContext context) {
 //   return Scaffold(
@@ -945,7 +684,61 @@ Future<void> startWorkout() async {
   //     ),
   //   );
   // }
+@override
+void initState() {
+  super.initState();
 
+  debugPrint('WATCH HOME INITIALIZED');
+
+  _messageSubscription = _watchConnectivity.messageStream.listen(
+    (message) {
+      debugPrint('MESSAGE RECEIVED ON WATCH: $message');
+
+      if (message is! Map) {
+        debugPrint('Invalid message format');
+        return;
+      }
+
+      final data = Map<String, dynamic>.from(message);
+
+      if (data['type'] != 'start_workout') {
+        debugPrint('Ignoring message type: ${data['type']}');
+        return;
+      }
+
+      final exerciseName =
+          data['exerciseName']?.toString();
+
+      if (exerciseName == null || exerciseName.isEmpty) {
+        debugPrint('Exercise name missing');
+        return;
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        _assignedExerciseName = exerciseName;
+        _assignedSets = int.tryParse('${data['sets']}');
+        _assignedReps = int.tryParse('${data['reps']}');
+        _assignedDurationSeconds =
+            int.tryParse('${data['durationSeconds']}');
+      });
+
+      debugPrint('ASSIGNED WORKOUT RECEIVED: $exerciseName');
+      debugPrint('SETS: $_assignedSets');
+      debugPrint('REPS: $_assignedReps');
+      debugPrint('DURATION: $_assignedDurationSeconds');
+    },
+    onError: (error) {
+      debugPrint('WATCH MESSAGE ERROR: $error');
+    },
+  );
+}
+@override
+void dispose() {
+  _messageSubscription?.cancel();
+  super.dispose();
+}
 @override
 Widget build(BuildContext context) {
   return Scaffold(
@@ -970,21 +763,7 @@ Widget build(BuildContext context) {
               ),
             ),
 
-            // const Text(
-            //   'P001',
-            //   style: TextStyle(
-            //     fontSize: 10,
-            //     color: Colors.white,
-            //   ),
-            // ),
-//             Text(
-//   _playerId,
-//   textAlign: TextAlign.center,
-//   style: const TextStyle(
-//     fontSize: 9,
-//     color: Colors.white,
-//   ),
-// ),
+        
 
             const SizedBox(height: 10),
 
@@ -1018,19 +797,55 @@ Widget build(BuildContext context) {
                 ),
             ],
 
+      //       const SizedBox(height: 6),
+      //       ElevatedButton(onPressed:(){ Navigator.push(context,
+      // MaterialPageRoute(
+      //   builder: (context) => WorkoutScreen(),), 
+      //   );},child: Text("Start Workout")),
+
+            // SizedBox(
+            //   width: double.infinity,
+            //   child: ElevatedButton(
+            //     onPressed: ,
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: accentBlue,
+            //       foregroundColor: Colors.white,
+            //       padding: const EdgeInsets.symmetric(vertical: 6),
+            //       minimumSize: const Size(0, 32),
+            //     ),
+            //     child: Text(
+            //       _isStartingWorkout
+            //           ? 'STARTING...'
+            //           : _isWorkoutStarted
+            //               ? 'WORKOUT STARTED'
+            //               : 'START WORKOUT',
+            //       style: const TextStyle(fontSize: 11),
+            //     ),
+            //   ),
+            // ),
+
+
+
             const SizedBox(height: 6),
 
-            SizedBox(
+
+             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isStartingWorkout || _isWorkoutStarted
+                 onPressed: 
+                _isStartingWorkout || _isWorkoutStarted
                     ? null
-                    : startWorkout,
+                    : (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>WorkoutScreen()
+                
+                      ));
+                    }, 
                 style: ElevatedButton.styleFrom(
                   backgroundColor: accentBlue,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   minimumSize: const Size(0, 32),
+                  
                 ),
                 child: Text(
                   _isStartingWorkout
@@ -1043,69 +858,31 @@ Widget build(BuildContext context) {
               ),
             ),
 
-            const SizedBox(height: 6),
+const SizedBox(height: 8),
 
-            Text(
-              '❤️ ${(_heartRate ?? 80).round()} BPM'
-              '${_heartRate == null ? ' *' : ''}',
-              style: const TextStyle(
-                fontSize: 11,
-                color: Colors.white,
-              ),
-            ),
-
-            Text(
-              '👣 ${_steps?.round() ?? '--'} steps',
-              style: const TextStyle(
-                fontSize: 11,
-                color: Colors.white,
-              ),
-            ),
-
-            Text(
-              '🔥 ${_calories?.round() ?? '--'} kcal',
-              style: const TextStyle(
-                fontSize: 11,
-                color: Colors.white,
-              ),
-            ),
-
-            const SizedBox(height: 6),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: !_isWorkoutStarted ||
-                        _isSending ||
-                        _steps == null ||
-                        _calories == null
-                    ? null
-                    : _sendWorkoutData,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accentBlue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  minimumSize: const Size(0, 32),
-                ),
-                child: Text(
-                  _isSending ? 'SENDING...' : 'SEND',
-                  style: const TextStyle(fontSize: 11),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 4),
-
-            Text(
-              _message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 9,
-                color: Colors.white,
-              ),
-            ),
-          ],
+SizedBox(
+  width: double.infinity,
+  child: ElevatedButton(
+    onPressed: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const WatchPairingScreen(),
         ),
+      );
+    },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: accentBlue,
+      foregroundColor: Colors.white,
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      minimumSize: const Size(0, 32),
+    ),
+    child: const Text('PAIR WATCH'),
+  ),
+),
+
+
+       ] )
       ),
     ),
   );

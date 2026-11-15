@@ -6,7 +6,10 @@ class ApiService {
   // For the standard Android emulator, use http://10.0.2.2:5000/api
   static const String baseUrl =
       //'http://192.168.0.101:5000/api';
-        'http://192.168.1.101:5000/api';
+        //'http://10.197.68.38:5000/api';
+        //'http://192.168.1.103:5000/api';
+        'http://192.168.1.100:5000/api';
+
 
   Future<Map<String, dynamic>> login({
     required String email,
@@ -159,6 +162,56 @@ Future<Map<String, dynamic>> getPlayerSessions({
       result['message']?.toString() ??
           'Could not load assigned sessions '
               '(${response.statusCode}).',
+    );
+  }
+
+  return result;
+}
+Future<Map<String, dynamic>> verifyWatchPairing({
+  required String watchId,
+  required String pairingToken,
+  required String accessToken,
+}) async {
+  final token = accessToken.trim();
+
+  if (token.isEmpty) {
+    throw Exception('Access token is empty. Please log in again.');
+  }
+
+  final response = await http.post(
+    Uri.parse('$baseUrl/wearable/pairing/verify'),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+    body: jsonEncode({
+      'watchId': watchId,
+      'pairingToken': pairingToken,
+    }),
+  );
+
+  final dynamic decoded;
+
+  try {
+    decoded = jsonDecode(response.body);
+  } on FormatException {
+    throw Exception(
+      'Invalid server response (${response.statusCode}).',
+    );
+  }
+
+  if (decoded is! Map) {
+    throw Exception('Unexpected response from server.');
+  }
+
+  final result = Map<String, dynamic>.from(decoded);
+
+  if (response.statusCode < 200 ||
+      response.statusCode >= 300) {
+    throw Exception(
+      result['message']?.toString() ??
+          'Watch pairing failed (${response.statusCode}).',
     );
   }
 

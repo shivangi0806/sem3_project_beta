@@ -4,7 +4,7 @@ import 'package:fitlink/features/coach/widgets/container.dart';
 import 'package:fitlink/features/sessions/presentation/screens/session_management_screen.dart';
 import 'package:fitlink/features/coach/presentation/screens/coach_player_assignment_screen.dart';
 import 'package:flutter/material.dart';
-
+import 'analytics_board_screen.dart';
 class CoachdashboardScreen extends StatefulWidget {
   const CoachdashboardScreen({super.key});
 
@@ -411,28 +411,28 @@ class _CoachdashboardScreenState extends State<CoachdashboardScreen> {
                                     children: [
                                       _playerCard(
                                         width,
-                                        'Shivangi',
+                                        'Player',
                                         'P001',
                                         isLoading ? 'Loading…' : steps,
                                         isLoading ? 'Loading…' : calories,
                                       ),
                                       _playerCard(
                                         width,
-                                        'Shivangi',
+                                        'Player',
                                         'P002',
                                         isLoading ? 'Loading…' : steps,
                                         isLoading ? 'Loading…' : calories,
                                       ),
                                       _playerCard(
                                         width,
-                                        'Shivangi',
+                                        'Player',
                                         '00129',
                                         '1,222',
                                         '1,112',
                                       ),
                                       _playerCard(
                                         width,
-                                        'Shivangi',
+                                        'Player',
                                         '00129',
                                         '1,222',
                                         '1,112',
@@ -449,6 +449,9 @@ class _CoachdashboardScreenState extends State<CoachdashboardScreen> {
                       const Expanded(child: SessionManagementScreen())
                     else if (selectedItem == 'Players')
                       const Expanded(child: CoachPlayerAssignmentScreen())
+                       else if (selectedItem == 'Analytics')
+                      const Expanded(child: AnalyticsBoardScreen())
+
                     else
                       Expanded(
                         child: Center(
@@ -463,39 +466,39 @@ class _CoachdashboardScreenState extends State<CoachdashboardScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
-                                  _menu
-                                      .firstWhere(
-                                        (item) => item.$1 == selectedItem,
-                                      )
-                                      .$2,
-                                  color: const Color(0xFF8BC5FF),
-                                  size: 38,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  '$selectedItem workspace',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'This section is ready for your $selectedItem tools.',
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Color(0xFF9DB6D5),
-                                    height: 1.5,
-                                  ),
-                                ),
-                                const SizedBox(height: 18),
-                                OutlinedButton.icon(
-                                  onPressed: () => _select('Dashboard'),
-                                  icon: const Icon(Icons.dashboard_outlined),
-                                  label: const Text('Back to dashboard'),
-                                ),
+                                // Icon(
+                                //   _menu
+                                //       .firstWhere(
+                                //         (item) => item.$1 == selectedItem,
+                                //       )
+                                //       .$2,
+                                //   color: const Color(0xFF8BC5FF),
+                                //   size: 38,
+                                // ),
+                                // const SizedBox(height: 16),
+                                // Text(
+                                //   '$selectedItem workspace',
+                                //   style: const TextStyle(
+                                //     color: Colors.white,
+                                //     fontSize: 20,
+                                //     fontWeight: FontWeight.w600,
+                                //   ),
+                                // ),
+                                // const SizedBox(height: 8),
+                                // Text(
+                                //   'This section is ready for your $selectedItem tools.',
+                                //   textAlign: TextAlign.center,
+                                //   style: const TextStyle(
+                                //     color: Color(0xFF9DB6D5),
+                                //     height: 1.5,
+                                //   ),
+                                // ),
+                                // const SizedBox(height: 18),
+                                // OutlinedButton.icon(
+                                //   onPressed: (){MaterialPageRoute(builder: (context)=>AnalyticsBoardScreen());},
+                                //   icon: const Icon(Icons.face),
+                                //   label: const Text('Back to dashboard'),
+                                // ),
                               ],
                             ),
                           ),
