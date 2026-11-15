@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-
 import 'analytics_container.dart';
 
 class HeartRateSummary extends StatelessWidget {
@@ -18,8 +16,8 @@ class HeartRateSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnalyticsContainer(
       title: 'Heart Rate Summary',
+      icon: Icons.favorite_rounded,
       child: SizedBox(
-        height: 320,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

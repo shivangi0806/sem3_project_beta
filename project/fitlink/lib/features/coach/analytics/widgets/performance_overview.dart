@@ -21,45 +21,21 @@ class PerformanceOverview extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnalyticsContainer(
       title: 'Performance Overview',
+      icon: Icons.insights_rounded,
       child: SizedBox(
-        height: 320,
-        child: Row(
-          children: [
-            Expanded(
-              child: MetricCard(
-                title: 'Total Steps',
-                value: totalSteps,
-                icon: Icons.directions_walk,
-              ),
-            ),
-            const SizedBox(width: 8),
-            // Expanded(
-            //   child: MetricCard(
-            //     title: 'Distance',
-            //     value: distance,
-            //     icon: Icons.route,
-            //   ),
-            // ),
-            // const SizedBox(width: 8),
-            Expanded(
-              child: MetricCard(
-                title: 'Calories',
-                value: calories,
-                icon: Icons.local_fire_department,
-                iconColor: Colors.orange,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: MetricCard(
-                title: 'Duration',
-                value: duration,
-                icon: Icons.timer,
-                iconColor: Colors.green,
-              ),
-            ),
-          ],
-        ),
+        child: Column(children: [
+          Expanded(child: Row(children: [
+            Expanded(child: MetricCard(title: 'Total Steps', value: totalSteps, icon: Icons.directions_walk)),
+            const SizedBox(width: 10),
+            Expanded(child: MetricCard(title: 'Calories', value: calories, icon: Icons.local_fire_department, iconColor: Colors.orange)),
+          ])),
+          const SizedBox(height: 10),
+          Expanded(child: Row(children: [
+            Expanded(child: MetricCard(title: 'Distance (m)', value: distance, icon: Icons.route_rounded, iconColor: const Color(0xFF21C5C0))),
+            const SizedBox(width: 10),
+            Expanded(child: MetricCard(title: 'Duration (s)', value: duration, icon: Icons.timer, iconColor: Colors.green)),
+          ])),
+        ]),
       ),
     );
   }

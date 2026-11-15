@@ -17,18 +17,15 @@ class ProgressComparison extends StatelessWidget {
   return value?.toString() ?? '--';
 }
 
-String percentageOf(dynamic value) {
-  return value == null ? '--' : '$value%';
-}
-
-final steps = progress?['steps'];
-final calories = progress?['calories'];
-final duration = progress?['durationSeconds'];  
+    final metrics = progress?['metrics'] ?? progress;
+    final steps = metrics?['steps'];
+    final calories = metrics?['calories'];
+    final duration = metrics?['durationSeconds'] ?? metrics?['duration'];
+    String percentageOf(dynamic value) => value == null ? '—' : '$value%';
     return AnalyticsContainer(
       title: 'Progress Comparison',
-      child: SizedBox(
-        height: 348,
-        child: Column(
+      icon: Icons.trending_up_rounded,
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -37,22 +34,24 @@ final duration = progress?['durationSeconds'];
     current: valueOf(steps?['current']),
     previous: valueOf(steps?['previous']),
     percentage: percentageOf(steps?['percentage']),
+    status: steps?['status']?.toString(),
   ),
   _ProgressMetric(
     title: 'Calories',
     current: valueOf(calories?['current']),
     previous: valueOf(calories?['previous']),
     percentage: percentageOf(calories?['percentage']),
+    status: calories?['status']?.toString(),
   ),
   _ProgressMetric(
     title: 'Duration',
     current: valueOf(duration?['current']),
     previous: valueOf(duration?['previous']),
     percentage: percentageOf(duration?['percentage']),
+    status: duration?['status']?.toString(),
   ),
 ],
         ),
-      ),
     );
   }
 }
@@ -62,12 +61,14 @@ class _ProgressMetric extends StatelessWidget {
   final String current;
   final String previous;
   final String percentage;
+  final String? status;
 
   const _ProgressMetric({
     required this.title,
     required this.current,
     required this.previous,
     required this.percentage,
+    this.status,
   });
 
   // @override
@@ -131,33 +132,12 @@ Widget build(BuildContext context) {
         ),
       ),
       const SizedBox(height: 8),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'Current: $current',
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-            ),
-          ),
-          Text(
-            'Previous: $previous',
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-            ),
-          ),
-          Text(
-            percentage,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
+      Wrap(spacing: 12, runSpacing: 5, crossAxisAlignment: WrapCrossAlignment.center, children: [
+        Text('Now  $current', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        Text('Before  $previous', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        Text(status == 'ZERO_BASELINE' ? 'New activity' : status == 'MISSING_DATA' ? 'No comparison' : percentage,
+            style: TextStyle(color: status == null || status == 'AVAILABLE' ? const Color(0xFF73D6B2) : const Color(0xFFFFC66D), fontWeight: FontWeight.w700, fontSize: 12)),
+      ]),
     ],
   );
 

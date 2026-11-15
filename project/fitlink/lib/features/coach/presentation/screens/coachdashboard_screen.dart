@@ -1,10 +1,16 @@
+import 'package:fitlink/core/services/coach_service.dart';
 import 'package:fitlink/core/services/wearable_service.dart';
 import 'package:fitlink/core/theme/app_theme.dart';
+import 'package:fitlink/features/auth/provider/user_provider.dart';
+import 'package:fitlink/features/coach/cubit/coach_cubit_cubit.dart';
+import 'package:fitlink/features/coach/presentation/screens/coach_dashboard_screen.dart';
 import 'package:fitlink/features/coach/widgets/container.dart';
 import 'package:fitlink/features/sessions/presentation/screens/session_management_screen.dart';
 import 'package:fitlink/features/coach/presentation/screens/coach_player_assignment_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'analytics_board_screen.dart';
+
 class CoachdashboardScreen extends StatefulWidget {
   const CoachdashboardScreen({super.key});
 
@@ -381,67 +387,10 @@ class _CoachdashboardScreenState extends State<CoachdashboardScreen> {
                   children: [
                     if (selectedItem == 'Dashboard')
                       Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              if (errorMessage != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: MaterialBanner(
-                                    content: Text(
-                                      'Could not load wearable data. $errorMessage',
-                                    ),
-                                    leading: const Icon(Icons.wifi_off_rounded),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: fetchWearableData,
-                                        child: const Text('Retry'),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final width = constraints.maxWidth < 720
-                                      ? constraints.maxWidth
-                                      : (constraints.maxWidth - 20) / 2;
-                                  return Wrap(
-                                    spacing: 20,
-                                    runSpacing: 20,
-                                    children: [
-                                      _playerCard(
-                                        width,
-                                        'Player',
-                                        'P001',
-                                        isLoading ? 'Loading…' : steps,
-                                        isLoading ? 'Loading…' : calories,
-                                      ),
-                                      _playerCard(
-                                        width,
-                                        'Player',
-                                        'P002',
-                                        isLoading ? 'Loading…' : steps,
-                                        isLoading ? 'Loading…' : calories,
-                                      ),
-                                      _playerCard(
-                                        width,
-                                        'Player',
-                                        '00129',
-                                        '1,222',
-                                        '1,112',
-                                      ),
-                                      _playerCard(
-                                        width,
-                                        'Player',
-                                        '00129',
-                                        '1,222',
-                                        '1,112',
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ],
+                        child: BlocProvider(
+                          create: (context) => CoachCubitCubit(CoachService()),
+                          child: CoachDashboardPage(
+                            token: context.read<UserProvider>().userToken,
                           ),
                         ),
                       )
@@ -449,9 +398,8 @@ class _CoachdashboardScreenState extends State<CoachdashboardScreen> {
                       const Expanded(child: SessionManagementScreen())
                     else if (selectedItem == 'Players')
                       const Expanded(child: CoachPlayerAssignmentScreen())
-                       else if (selectedItem == 'Analytics')
+                    else if (selectedItem == 'Analytics')
                       const Expanded(child: AnalyticsBoardScreen())
-
                     else
                       Expanded(
                         child: Center(

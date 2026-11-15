@@ -1,110 +1,92 @@
-  import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-  import 'analytics_container.dart';
-  import 'performance_overview.dart';
-  import 'activity_trends.dart';
-  import 'heart_rate_summary.dart';
-  import 'progress_comparison.dart';
-  class AnalyticsDashboardGrid extends StatelessWidget {
-    // const AnalyticsDashboardGrid({super.key});
-    final Map<String, dynamic>? analyticsReport;
+import '../model/analytics_model.dart';
+import 'activity_trends.dart';
+import 'heart_rate_summary.dart';
+import 'performance_overview.dart';
+import 'progress_comparison.dart';
+import 'training_insights.dart';
 
-    const AnalyticsDashboardGrid({
-      super.key,
-      required this.analyticsReport,
-    });
+class AnalyticsDashboardGrid extends StatelessWidget {
+  final AnalyticsModel? analyticsReport;
 
-    @override
-    Widget build(BuildContext context) {
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          final panelWidth = (constraints.maxWidth - 12) / 2;
+  static final _sampleReport = AnalyticsModel.fromJson({
+    'overview': {
+      'totalSteps': 58420,
+      'totalDistanceMeters': 42300,
+      'totalCalories': 3120,
+      'totalDurationSeconds': 10800,
+    },
+    'activity': {
+      'trends': [
+        {'totalSteps': 6200},
+        {'totalSteps': 8100},
+        {'totalSteps': 7400},
+        {'totalSteps': 9600},
+        {'totalSteps': 8800},
+        {'totalSteps': 10200},
+        {'totalSteps': 8120},
+      ],
+    },
+    'heartRate': {
+      'durationWeightedAverageBpm': 128,
+      'highestRecordedBatchMaximumBpm': 176,
+    },
+    'progress': {
+      'metrics': {
+        'steps': {'current': 58420, 'previous': 51200, 'percentage': 14, 'status': 'AVAILABLE'},
+        'calories': {'current': 3120, 'previous': 2890, 'percentage': 8, 'status': 'AVAILABLE'},
+        'durationSeconds': {'current': 10800, 'previous': 9600, 'percentage': 13, 'status': 'AVAILABLE'},
+      },
+    },
+    'duration': {
+      'executionCount': 5,
+      'averageExecutionDurationSeconds': 2160,
+      'longestExecutionDurationSeconds': 3000,
+      'shortestExecutionDurationSeconds': 1500,
+    },
+    'consistency': {
+      'activeDays': 5,
+      'executionCount': 5,
+      'currentStreakDays': 3,
+      'bestStreakDays': 8,
+    },
+  });
 
-          return Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              SizedBox(
-                width: panelWidth,
-                height: 420,
-                child: PerformanceOverview(
-    totalSteps: analyticsReport?['overview']?['totalSteps']?.toString() ?? '--',
-    distance: analyticsReport?['overview']?['totalDistanceMeters']?.toString() ?? '--',
-    calories: analyticsReport?['overview']?['totalCalories']?.toString() ?? '--',
-    duration: analyticsReport?['overview']?['totalDurationSeconds']?.toString() ?? '--',
-  ),
-                // child: const PerformanceOverview(
-                //   totalSteps: '--',
-                //   distance: '--',
-                //   calories: '--',
-                //   duration: '--',
-                // ),
-              ),
+  const AnalyticsDashboardGrid({super.key, required this.analyticsReport});
 
-              // SizedBox(
-              //   width: panelWidth,
-              //   height: 320,
-              //   child: const AnalyticsContainer(
-              //     title: 'Activity Trends',
-              //     child: Center(
-              //       child: Text(
-              //         'Activity chart will appear here',
-              //         style: TextStyle(color: Colors.white70),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              SizedBox(
-    width: panelWidth,
-    height: 420,
-    child:  ActivityTrends(trends: analyticsReport?['activity']?['trends'] ?? [],),
-  ),
-
-              // SizedBox(
-              //   width: panelWidth,
-              //   height: 320,
-              //   child: const AnalyticsContainer(
-              //     title: 'Heart Rate Summary',
-              //     child: Center(
-              //       child: Text(
-              //         'Heart rate chart will appear here',
-              //         style: TextStyle(color: Colors.white70),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              SizedBox(
-    width: panelWidth,
-    height: 420,
-    child: HeartRateSummary(
-  averageBpm: analyticsReport?['heartRate']?['durationWeightedAverageBpm']?.toString() ?? '--',
-  maximumBpm: analyticsReport?['heartRate']?['highestRecordedBatchMaximumBpm']?.toString() ?? '--',
-),
-  ),
-  
-              // SizedBox(
-              //   width: panelWidth,
-              //   height: 320,
-              //   child: const AnalyticsContainer(
-              //     title: 'Progress Comparison',
-              //     child: Center(
-              //       child: Text(
-              //         'Progress chart will appear here',
-              //         style: TextStyle(color: Colors.white70),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              SizedBox(
-    width: panelWidth,
-    height: 420,
-    child:  ProgressComparison(
-       progress: analyticsReport?['progress'],
-    ),
-  ),
-            ],
-          );
-        },
-      );
-    }
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= 900 ? 2 : 1;
+        final gap = 16.0;
+        final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
+        final report = (analyticsReport ?? _sampleReport).toJson();
+        final cards = <Widget>[
+          PerformanceOverview(
+            totalSteps: report?['overview']?['totalSteps']?.toString() ?? '--',
+            distance: report?['overview']?['totalDistanceMeters']?.toString() ?? '--',
+            calories: report?['overview']?['totalCalories']?.toString() ?? '--',
+            duration: report?['overview']?['totalDurationSeconds']?.toString() ?? '--',
+          ),
+          ActivityTrends(trends: report?['activity']?['trends'] ?? []),
+          HeartRateSummary(
+            averageBpm: report?['heartRate']?['durationWeightedAverageBpm']?.toString() ?? '--',
+            maximumBpm: report?['heartRate']?['highestRecordedBatchMaximumBpm']?.toString() ?? '--',
+          ),
+          ProgressComparison(progress: report?['progress']),
+          TrainingInsights(
+            duration: report?['duration'] is Map ? Map<String, dynamic>.from(report!['duration'] as Map) : null,
+            consistency: report?['consistency'] is Map ? Map<String, dynamic>.from(report!['consistency'] as Map) : null,
+          ),
+        ];
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: cards.map((card) => SizedBox(width: width, height: 440, child: card)).toList(),
+        );
+      },
+    );
   }
+}

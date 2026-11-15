@@ -1,844 +1,96 @@
-import 'package:fitlink/core/services/wearable_service.dart';
-import 'package:fitlink/core/theme/app_theme.dart';
-import 'package:fitlink/features/coach/data/model/coach_model.dart';
+import 'package:fitlink/features/coach/cubit/coach_cubit_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-Widget _buildSidebar() {
-  return Container(
-    width: 250,
-    decoration: BoxDecoration(
-      color: const Color(0xFF0B2140),
-      border: Border(right: BorderSide(color: Colors.white.withOpacity(.06))),
-    ),
-    child: Column(
-      children: [
-        // Logo
-        Container(
-          height: 86,
-          padding: const EdgeInsets.symmetric(horizontal: 28),
-          alignment: Alignment.centerLeft,
-          child: Row(
-            children: [
-              const Icon(Icons.directions_run, color: accentBlue, size: 36),
-              const SizedBox(width: 10),
-              const Text(
-                'FitLink',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 27,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
+import 'package:fitlink/core/services/coach_service.dart';
+import 'package:fitlink/features/coach/data/model/coach_dashboard_model.dart';
 
-        Divider(color: Colors.white.withOpacity(.06), height: 1),
+class CoachDashboardPage extends StatefulWidget {
+  final String token;
 
-        const SizedBox(height: 18),
-
-        _sidebarItem(Icons.grid_view_rounded, 'Players', selected: true),
-        _sidebarItem(Icons.access_time_rounded, 'Sessions'),
-        _sidebarItem(Icons.bar_chart_rounded, 'Analytics'),
-        _sidebarItem(Icons.description_outlined, 'Reports'),
-        _sidebarItem(Icons.settings_outlined, 'Settings'),
-
-        const Spacer(),
-
-        Padding(
-          padding: const EdgeInsets.all(28),
-          child: Row(
-            children: [
-              Icon(Icons.monitor_heart_outlined, color: accentBlue, size: 24),
-              const SizedBox(width: 10),
-              const Expanded(
-                child: Text(
-                  'Better Data.\nStronger Players.',
-                  style: TextStyle(
-                    color: Color(0xFF9DB6D5),
-                    height: 1.5,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _sidebarItem(IconData icon, String title, {bool selected = false}) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 4),
-    child: Container(
-      height: 52,
-      decoration: BoxDecoration(
-        color: selected ? const Color(0xFF174B8F) : Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        children: [
-          const SizedBox(width: 16),
-          Icon(
-            icon,
-            color: selected ? Colors.white : const Color(0xFF91ACCC),
-            size: 23,
-          ),
-          const SizedBox(width: 16),
-          Text(
-            title,
-            style: TextStyle(
-              color: selected ? Colors.white : const Color(0xFF91ACCC),
-              fontSize: 16,
-              fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-Widget _buildTopBar() {
-  return Container(
-    height: 86,
-    padding: const EdgeInsets.symmetric(horizontal: 26),
-    decoration: BoxDecoration(
-      color: const Color(0xFF0B2344),
-      border: Border(bottom: BorderSide(color: Colors.white.withOpacity(.06))),
-    ),
-    child: Row(
-      children: [
-        const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Coach Dashboard',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 3),
-            Text(
-              'Monitor. Guide. Improve.',
-              style: TextStyle(color: Color(0xFF91ACCC), fontSize: 14),
-            ),
-          ],
-        ),
-
-        const Spacer(),
-
-        Stack(
-          children: [
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.notifications_none_rounded,
-                color: Colors.white,
-                size: 28,
-              ),
-            ),
-            Positioned(
-              right: 9,
-              top: 9,
-              child: Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: Colors.redAccent,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(width: 15),
-      ],
-    ),
-  );
-}
-
-Widget _buildPageTitle() {
-  return Row(
-    children: [
-      const Icon(Icons.people_alt_outlined, color: accentBlue, size: 30),
-      const SizedBox(width: 12),
-      const Text(
-        'Player Performance',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 25,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-      const Spacer(),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 11),
-        decoration: BoxDecoration(
-          color: const Color(0xFF102D52),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: const Row(
-          children: [
-            Icon(
-              Icons.calendar_today_outlined,
-              color: Color(0xFF9DB6D5),
-              size: 19,
-            ),
-            SizedBox(width: 10),
-            Text(
-              'Today',
-              style: TextStyle(color: Color(0xFFB6C9E0), fontSize: 15),
-            ),
-            SizedBox(width: 18),
-            Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF9DB6D5)),
-          ],
-        ),
-      ),
-    ],
-  );
-}
-
-// ============================================================
-// PLAYER CARD
-// ============================================================
-
-class PlayerCard extends StatelessWidget {
-  final PlayerData player;
-
-  const PlayerCard({super.key, required this.player});
-
-  static const Color cardBlue = Color(0xFF0D2344);
-  static const Color green = Color(0xFF27C39F);
-  static const Color orange = Color(0xFFFFB84D);
-  static const Color accentBlue = Color(0xFF5090D3);
+  const CoachDashboardPage({super.key, required this.token});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: cardBlue,
-        borderRadius: BorderRadius.circular(13),
-        border: Border.all(color: const Color(0xFF1B4678)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Player header
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 27,
-                backgroundColor: _playerColor(player.id),
-                child: Text(
-                  player.id,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 13),
-
-              Text(
-                player.id,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: player.status == 'Active'
-                      ? const Color(0xFF139A77)
-                      : const Color(0xFF1763C2),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Text(
-                  player.status,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-
-              const Spacer(),
-
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: Color(0xFF82A6D3),
-                size: 27,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 15),
-
-          // Metrics
-          Row(
-            children: [
-              _metric(
-                Icons.favorite_rounded,
-                '${player.bpm} BPM',
-                Colors.redAccent,
-              ),
-              _metric(
-                Icons.directions_walk_rounded,
-                _formatNumber(player.steps),
-                green,
-              ),
-              _metric(
-                Icons.local_fire_department_rounded,
-                '${player.calories} kcal',
-                orange,
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 13),
-
-          // Heart rate
-          Container(
-            height: 143,
-            padding: const EdgeInsets.fromLTRB(10, 7, 10, 5),
-            decoration: BoxDecoration(
-              color: const Color(0xFF102D52),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Heart Rate',
-                  style: TextStyle(
-                    color: Color(0xFFD6E4F5),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Expanded(child: HeartRateChart(values: player.heartRate)),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 11),
-
-          ProgressRow(
-            icon: Icons.directions_walk_rounded,
-            title: 'Steps Today',
-            value: player.steps,
-            maxValue: 6000,
-            suffix: '${_formatNumber(player.steps)} / 6,000',
-            color: green,
-          ),
-
-          const SizedBox(height: 9),
-
-          ProgressRow(
-            icon: Icons.local_fire_department_rounded,
-            title: 'Calories',
-            value: player.calories,
-            maxValue: 400,
-            suffix: '${player.calories} / 400',
-            color: orange,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _metric(IconData icon, String text, Color color) {
-    return Expanded(
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: const TextStyle(
-              color: Color(0xFFE1EBF7),
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Color _playerColor(String id) {
-    switch (id) {
-      case 'P001':
-        return const Color(0xFF328AC8);
-      case 'P002':
-        return const Color(0xFF5276E8);
-      case 'P003':
-        return const Color(0xFF635CE1);
-      default:
-        return const Color(0xFF38B6C9);
-    }
-  }
-
-  String _formatNumber(int number) {
-    return number.toString().replaceAllMapped(
-      RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
-      (match) => '${match[1]},',
-    );
-  }
+  State<CoachDashboardPage> createState() => _CoachDashboardPageState();
 }
 
-// ============================================================
-// PROGRESS BAR
-// ============================================================
-
-class ProgressRow extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final int value;
-  final int maxValue;
-  final String suffix;
-  final Color color;
-
-  const ProgressRow({
-    super.key,
-    required this.icon,
-    required this.title,
-    required this.value,
-    required this.maxValue,
-    required this.suffix,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final percentage = (value / maxValue).clamp(0.0, 1.0);
-
-    return Column(
-      children: [
-        Row(
-          children: [
-            Icon(icon, color: color, size: 21),
-            const SizedBox(width: 9),
-            Text(
-              title,
-              style: const TextStyle(
-                color: Color(0xFFE0EAF6),
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const Spacer(),
-            Text(
-              suffix,
-              style: const TextStyle(color: Color(0xFFC3D2E5), fontSize: 13),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 6),
-
-        ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Stack(
-            children: [
-              Container(
-                height: 12,
-                width: double.infinity,
-                color: const Color(0xFF19395F),
-              ),
-              FractionallySizedBox(
-                widthFactor: percentage,
-                child: Container(
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ============================================================
-// HEART RATE CHART
-// ============================================================
-
-class HeartRateChart extends StatelessWidget {
-  final List<double> values;
-
-  const HeartRateChart({super.key, required this.values});
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: HeartRatePainter(values),
-      child: const SizedBox.expand(),
-    );
-  }
-}
-
-class HeartRatePainter extends CustomPainter {
-  final List<double> values;
-
-  HeartRatePainter(this.values);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    const leftPadding = 30.0;
-    const bottomPadding = 20.0;
-    const topPadding = 5.0;
-    const rightPadding = 5.0;
-
-    final chartWidth = size.width - leftPadding - rightPadding;
-
-    final chartHeight = size.height - topPadding - bottomPadding;
-
-    final gridPaint = Paint()
-      ..color = const Color(0xFF234467)
-      ..strokeWidth = 1;
-
-    final linePaint = Paint()
-      ..color = const Color(0xFF4289E8)
-      ..strokeWidth = 2.5
-      ..style = PaintingStyle.stroke;
-
-    // Horizontal grid lines
-    for (int i = 0; i < 4; i++) {
-      final y = topPadding + (chartHeight / 3) * i;
-
-      canvas.drawLine(
-        Offset(leftPadding, y),
-        Offset(size.width - rightPadding, y),
-        gridPaint,
-      );
-    }
-
-    // Y-axis labels
-    const labels = ['120', '100', '80', '60'];
-
-    for (int i = 0; i < labels.length; i++) {
-      final y = topPadding + (chartHeight / 3) * i;
-
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: labels[i],
-          style: const TextStyle(color: Color(0xFFB5C9E2), fontSize: 10),
-        ),
-        textDirection: TextDirection.ltr,
-      );
-
-      textPainter.layout();
-
-      textPainter.paint(canvas, Offset(0, y - textPainter.height / 2));
-    }
-
-    if (values.isEmpty) return;
-
-    final path = Path();
-
-    for (int i = 0; i < values.length; i++) {
-      final x = leftPadding + (i / (values.length - 1)) * chartWidth;
-
-      final normalized = ((values[i] - 60) / 60).clamp(0.0, 1.0);
-
-      final y = topPadding + chartHeight * (1 - normalized);
-
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-
-    canvas.drawPath(path, linePaint);
-
-    // X-axis labels
-    const xLabels = ['0', '10', '20', '30', '40'];
-
-    for (int i = 0; i < xLabels.length; i++) {
-      final x = leftPadding + (i / (xLabels.length - 1)) * chartWidth;
-
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: xLabels[i],
-          style: const TextStyle(color: Color(0xFFB5C9E2), fontSize: 10),
-        ),
-        textDirection: TextDirection.ltr,
-      );
-
-      textPainter.layout();
-
-      textPainter.paint(
-        canvas,
-        Offset(x - textPainter.width / 2, size.height - textPainter.height),
-      );
-    }
-
-    final minTextPainter = TextPainter(
-      text: const TextSpan(
-        text: 'min',
-        style: TextStyle(color: Color(0xFFB5C9E2), fontSize: 10),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-
-    minTextPainter.layout();
-
-    minTextPainter.paint(
-      canvas,
-      Offset(
-        size.width - minTextPainter.width,
-        size.height - minTextPainter.height,
-      ),
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant HeartRatePainter oldDelegate) {
-    return oldDelegate.values != values;
-  }
-}
-
-class CoachDashboardScreen extends StatefulWidget {
-  const CoachDashboardScreen({super.key});
-
-  @override
-  State<CoachDashboardScreen> createState() => _CoachDashboardScreenState();
-}
-
-class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
-  final WearableService _wearableService = WearableService();
-
-  // This is the list consumed by GridView.builder.
-  List<PlayerData> players = [];
-
-  bool isLoading = true;
-  String? errorMessage;
-
+class _CoachDashboardPageState extends State<CoachDashboardPage> {
   @override
   void initState() {
     super.initState();
-    fetchWearableData();
-  }
 
-  Future<void> fetchWearableData() async {
-    try {
-      // Fetch the wearable readings from your service.
-      final reading = await _wearableService.getWearableData('P001');
-
-      debugPrint('WEARABLE READINGS: $reading');
-
-      // Convert the service response into PlayerData objects.
-      final List<PlayerData> fetchedPlayers = _parseWearableReadings(reading);
-
-      if (!mounted) return;
-
-      setState(() {
-        players = fetchedPlayers;
-        isLoading = false;
-        errorMessage = null;
-      });
-    } catch (e, stackTrace) {
-      debugPrint('ERROR FETCHING WEARABLE DATA: $e');
-      debugPrintStack(stackTrace: stackTrace);
-
-      if (!mounted) return;
-
-      setState(() {
-        isLoading = false;
-        errorMessage = e.toString();
-      });
-    }
-  }
-
-  List<PlayerData> _parseWearableReadings(dynamic reading) {
-    // Support an API response wrapped in a "data" field.
-    dynamic payload = reading;
-
-    if (payload is Map && payload.containsKey('data')) {
-      payload = payload['data'];
-    }
-
-    // The API may return one reading or a list of readings.
-    final List<dynamic> records;
-
-    if (payload is List) {
-      records = payload;
-    } else if (payload is Map) {
-      records = [payload];
-    } else {
-      throw const FormatException(
-        'Unexpected wearable readings response format.',
-      );
-    }
-
-    return records.map((record) {
-      if (record is! Map) {
-        throw const FormatException(
-          'A wearable reading must be a JSON object.',
-        );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _loadDashboard();
       }
-
-      final data = Map<String, dynamic>.from(record);
-
-      // Adjust these keys to match your actual API response.
-      final rawHeartRate = data['heartRate'] ?? data['heart_rate'] ?? [];
-
-      final heartRates = rawHeartRate is List
-          ? rawHeartRate.map((value) => _toDouble(value)).toList()
-          : <double>[];
-
-      final bpm = _toInt(
-        data['bpm'] ??
-            data['heartRateBpm'] ??
-            data['heart_rate_bpm'] ??
-            (heartRates.isNotEmpty ? heartRates.last : 0),
-      );
-
-      return PlayerData(
-        id: (data['playerId'] ?? data['player_id'] ?? data['id'] ?? 'P001')
-            .toString(),
-        bpm: bpm,
-        steps: _toInt(data['steps'] ?? data['totalSteps']),
-        calories: _toInt(data['calories'] ?? data['totalCalories']),
-        status: (data['status'] ?? 'Active').toString(),
-        heartRate: heartRates,
-      );
-    }).toList();
+    });
   }
 
-  int _toInt(dynamic value) {
-    if (value is num) return value.toInt();
-    return int.tryParse(value?.toString() ?? '') ?? 0;
-  }
-
-  double _toDouble(dynamic value) {
-    if (value is num) return value.toDouble();
-    return double.tryParse(value?.toString() ?? '') ?? 0.0;
+  void _loadDashboard() {
+    context.read<CoachCubitCubit>().getDashboardData(token: widget.token);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: navyBlue,
+      backgroundColor: const Color(0xFF0B1120),
       body: SafeArea(
-        child: Row(
+        child: BlocConsumer<CoachCubitCubit, CoachCubitState>(
+          listener: (context, state) {},
+          builder: (context, state) {
+            if (state is CoachLoading || state is CoachCubitInitial) {
+              return const Center(
+                child: CircularProgressIndicator(color: Color(0xFF3B82F6)),
+              );
+            }
+
+            if (state is CoachError) {
+              return _buildError(state.message);
+            }
+
+            if (state is CoachDashboardSuccessState) {
+              return _buildDashboard(state.data);
+            }
+
+            return _buildError('Unable to display dashboard data.');
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildError(String message) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            _buildSidebar(),
-            Expanded(
-              child: Column(
-                children: [
-                  _buildTopBar(),
-                  Expanded(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final isSmall = constraints.maxWidth < 900;
-
-                        return SingleChildScrollView(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildPageTitle(),
-                              const SizedBox(height: 20),
-
-                              if (isLoading)
-                                const Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(40),
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                )
-                              else if (errorMessage != null)
-                                Center(
-                                  child: Column(
-                                    children: [
-                                      const Icon(
-                                        Icons.error_outline,
-                                        color: Colors.redAccent,
-                                        size: 40,
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Failed to load wearable data',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        errorMessage!,
-                                        style: const TextStyle(
-                                          color: Colors.white70,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      const SizedBox(height: 12),
-                                      ElevatedButton(
-                                        onPressed: fetchWearableData,
-                                        child: const Text('Retry'),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              else if (players.isEmpty)
-                                const Center(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(40),
-                                    child: Text(
-                                      'No wearable readings available.',
-                                      style: TextStyle(color: Colors.white70),
-                                    ),
-                                  ),
-                                )
-                              else
-                                GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: players.length,
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: isSmall ? 1 : 2,
-                                        crossAxisSpacing: 20,
-                                        mainAxisSpacing: 20,
-                                        childAspectRatio: isSmall ? 1.45 : 1.15,
-                                      ),
-                                  itemBuilder: (context, index) {
-                                    return PlayerCard(player: players[index]);
-                                  },
-                                ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
+            const Icon(
+              Icons.cloud_off_rounded,
+              color: Colors.redAccent,
+              size: 55,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Something went wrong',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white60),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: _loadDashboard,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
             ),
           ],
         ),
@@ -846,6 +98,581 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     );
   }
 
-  // Keep your existing _buildSidebar(), _buildTopBar(),
-  // _buildPageTitle(), and _sidebarItem() methods here.
+  Widget _buildDashboard(CoachDashboardModel data) {
+    return RefreshIndicator(
+      color: const Color(0xFF3B82F6),
+      backgroundColor: const Color(0xFF172033),
+      onRefresh: () async {
+        await context.read<CoachCubitCubit>().getDashboardData(
+          token: widget.token,
+        );
+      },
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                _buildHeader(data.coach),
+                const SizedBox(height: 28),
+
+                _sectionTitle('Team Overview', 'Your team at a glance'),
+                const SizedBox(height: 16),
+
+                _buildMembersSection(data.members),
+
+                const SizedBox(height: 28),
+
+                _sectionTitle(
+                  'Training Overview',
+                  'Training and session statistics',
+                ),
+                const SizedBox(height: 16),
+
+                _buildTrainingSection(data.training),
+
+                const SizedBox(height: 28),
+
+                _sectionTitle(
+                  'Player Performance',
+                  'Team performance indicators',
+                ),
+                const SizedBox(height: 16),
+
+                _buildPerformanceSection(data.performance),
+
+                const SizedBox(height: 28),
+
+                _sectionTitle(
+                  'Wearable Analytics',
+                  'Connected devices and activity',
+                ),
+                const SizedBox(height: 16),
+
+                _buildWearableSection(data.wearable),
+
+                const SizedBox(height: 28),
+
+                _buildAttentionSection(data.attention),
+
+                const SizedBox(height: 30),
+
+                Center(
+                  child: Text(
+                    'FITLINK • COACH DASHBOARD',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.35),
+                      fontSize: 11,
+                      letterSpacing: 2,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // HEADER
+
+  Widget _buildHeader(CoachProfileModel coach) {
+    final username = coach.username.isEmpty ? 'Coach' : coach.username;
+
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'WELCOME BACK,',
+                style: TextStyle(
+                  color: Color(0xFF60A5FA),
+                  fontSize: 11,
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                username,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 27,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 5),
+              const Text(
+                'Here is your team performance today.',
+                style: TextStyle(color: Colors.white60, fontSize: 13),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          height: 52,
+          width: 52,
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E3A8A),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFF3B82F6)),
+          ),
+          child: const Icon(
+            Icons.sports_rounded,
+            color: Colors.white,
+            size: 28,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // SECTION TITLE
+
+  Widget _sectionTitle(String title, String subtitle) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 19,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          subtitle,
+          style: const TextStyle(color: Colors.white54, fontSize: 12),
+        ),
+      ],
+    );
+  }
+
+  // TEAM OVERVIEW
+
+  Widget _buildMembersSection(CoachMembersModel members) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _statCard(
+                title: 'Total Players',
+                value: '${members.total}',
+                icon: Icons.groups_rounded,
+                color: const Color(0xFF3B82F6),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _statCard(
+                title: 'Active Players',
+                value: '${members.active}',
+                icon: Icons.check_circle_rounded,
+                color: const Color(0xFF22C55E),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _statCard(
+                title: 'Inactive Players',
+                value: '${members.inactive}',
+                icon: Icons.person_off_rounded,
+                color: const Color(0xFFF59E0B),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _statCard(
+                title: 'Activity Rate',
+                value: '${members.activityRate}%',
+                icon: Icons.trending_up_rounded,
+                color: const Color(0xFFA78BFA),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // TRAINING
+
+  Widget _buildTrainingSection(CoachTrainingModel training) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _statCard(
+                title: 'Upcoming Sessions',
+                value: _display(training.upcomingSessions),
+                icon: Icons.event_available_rounded,
+                color: const Color(0xFF38BDF8),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _statCard(
+                title: 'Completed Sessions',
+                value: _display(training.completedSessions),
+                icon: Icons.task_alt_rounded,
+                color: const Color(0xFF22C55E),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _progressCard(
+          title: 'Workout Completion',
+          value: training.workoutCompletionRate,
+          icon: Icons.fitness_center_rounded,
+          color: const Color(0xFF3B82F6),
+        ),
+        const SizedBox(height: 12),
+        _progressCard(
+          title: 'Attendance Rate',
+          value: training.attendanceRate,
+          icon: Icons.how_to_reg_rounded,
+          color: const Color(0xFF22C55E),
+        ),
+      ],
+    );
+  }
+
+  // PERFORMANCE
+
+  Widget _buildPerformanceSection(CoachPerformanceModel performance) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _statCard(
+                title: 'Players Progressing',
+                value: _display(performance.membersShowingProgress),
+                icon: Icons.trending_up_rounded,
+                color: const Color(0xFF22C55E),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _statCard(
+                title: 'Personal Records',
+                value: _display(performance.personalRecords),
+                icon: Icons.emoji_events_rounded,
+                color: const Color(0xFFFBBF24),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _statCard(
+          title: 'Average Training Time',
+          value: performance.averageTrainingTime == null
+              ? '—'
+              : '${performance.averageTrainingTime}',
+          subtitle: 'As reported by the backend',
+          icon: Icons.timer_rounded,
+          color: const Color(0xFF38BDF8),
+        ),
+      ],
+    );
+  }
+
+  // WEARABLE ANALYTICS
+
+  Widget _buildWearableSection(CoachWearableModel wearable) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _statCard(
+                title: 'Connected Devices',
+                value: _display(wearable.connectedDevices),
+                icon: Icons.watch_rounded,
+                color: const Color(0xFF38BDF8),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _statCard(
+                title: 'Active Devices',
+                value: _display(wearable.activeDevices),
+                icon: Icons.bluetooth_connected_rounded,
+                color: const Color(0xFF22C55E),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _statCard(
+                title: 'Average Steps',
+                value: wearable.averageSteps == null
+                    ? '—'
+                    : _formatNumber(wearable.averageSteps!),
+                icon: Icons.directions_walk_rounded,
+                color: const Color(0xFFA78BFA),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _statCard(
+                title: 'Avg. Heart Rate',
+                value: wearable.averageHeartRate == null
+                    ? '—'
+                    : '${wearable.averageHeartRate!.toStringAsFixed(0)} BPM',
+                icon: Icons.favorite_rounded,
+                color: const Color(0xFFFB7185),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _progressCard(
+          title: 'Wearable Sync Success',
+          value: wearable.syncSuccessRate,
+          icon: Icons.sync_rounded,
+          color: const Color(0xFF38BDF8),
+        ),
+      ],
+    );
+  }
+
+  // ATTENTION
+
+  Widget _buildAttentionSection(CoachAttentionModel attention) {
+    final count = attention.membersNeedingAttention;
+
+    final hasAttention = count != null && count > 0;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF172033),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: hasAttention
+              ? const Color(0xFFF59E0B).withOpacity(0.6)
+              : const Color(0xFF263449),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            height: 46,
+            width: 46,
+            decoration: BoxDecoration(
+              color: hasAttention
+                  ? const Color(0xFFF59E0B).withOpacity(0.15)
+                  : const Color(0xFF22C55E).withOpacity(0.15),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              hasAttention
+                  ? Icons.warning_amber_rounded
+                  : Icons.verified_rounded,
+              color: hasAttention
+                  ? const Color(0xFFF59E0B)
+                  : const Color(0xFF22C55E),
+              size: 25,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Members Needing Attention',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  count == null
+                      ? 'Information unavailable'
+                      : hasAttention
+                      ? 'Some members may need your attention.'
+                      : 'No members currently flagged.',
+                  style: const TextStyle(color: Colors.white54, fontSize: 11),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            _display(count),
+            style: TextStyle(
+              color: hasAttention ? const Color(0xFFF59E0B) : Colors.white,
+              fontSize: 25,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // REUSABLE STATISTICS CARD
+
+  Widget _statCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+    String? subtitle,
+  }) {
+    return Container(
+      constraints: const BoxConstraints(minHeight: 125),
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: const Color(0xFF172033),
+        borderRadius: BorderRadius.circular(17),
+        border: Border.all(color: const Color(0xFF263449)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 21),
+              const Spacer(),
+              Container(
+                height: 7,
+                width: 7,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+            ],
+          ),
+          const SizedBox(height: 15),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 23,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: const TextStyle(color: Colors.white38, fontSize: 10),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // REUSABLE PROGRESS CARD
+
+  Widget _progressCard({
+    required String title,
+    required num? value,
+    required IconData icon,
+    required Color color,
+  }) {
+    final percentage = value == null
+        ? null
+        : value.toDouble().clamp(0.0, 100.0);
+
+    return Container(
+      padding: const EdgeInsets.all(17),
+      decoration: BoxDecoration(
+        color: const Color(0xFF172033),
+        borderRadius: BorderRadius.circular(17),
+        border: Border.all(color: const Color(0xFF263449)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 21),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Text(
+                percentage == null ? '—' : '${percentage.toStringAsFixed(1)}%',
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 15),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              value: percentage == null ? null : percentage / 100,
+              minHeight: 7,
+              backgroundColor: const Color(0xFF263449),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _display(num? value) {
+    return value?.toString() ?? '—';
+  }
+
+  String _formatNumber(num value) {
+    final number = value.toStringAsFixed(0);
+    final buffer = StringBuffer();
+
+    for (int i = 0; i < number.length; i++) {
+      buffer.write(number[i]);
+
+      final remaining = number.length - i - 1;
+
+      if (remaining > 0 && remaining % 3 == 0) {
+        buffer.write(',');
+      }
+    }
+
+    return buffer.toString();
+  }
 }

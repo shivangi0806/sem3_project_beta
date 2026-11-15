@@ -17,6 +17,7 @@ class ActivityTrends extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnalyticsContainer(
       title: 'Activity Trends',
+      icon: Icons.show_chart_rounded,
       child: trends.isEmpty
     ? const SizedBox(
         height: 320,
@@ -28,8 +29,7 @@ class ActivityTrends extends StatelessWidget {
           ),
         ),
       )
-    : SizedBox(
-        child: LineChart(
+    : LineChart(
           LineChartData(
             gridData: FlGridData(
               show: true,
@@ -87,7 +87,6 @@ class ActivityTrends extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }
