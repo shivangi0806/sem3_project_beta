@@ -63,7 +63,9 @@ class CoachRosterState {
   }) => CoachRosterState(
     loading: loading ?? this.loading,
     searching: searching ?? this.searching,
-    workingPlayerId: clearWorkingPlayer ? null : workingPlayerId ?? this.workingPlayerId,
+    workingPlayerId: clearWorkingPlayer
+        ? null
+        : workingPlayerId ?? this.workingPlayerId,
     roster: roster ?? this.roster,
     matches: matches ?? this.matches,
     error: clearError ? null : error ?? this.error,
@@ -72,7 +74,8 @@ class CoachRosterState {
 }
 
 class CoachRosterCubit extends Cubit<CoachRosterState> {
-  CoachRosterCubit(this._service) : super(const CoachRosterState(loading: true));
+  CoachRosterCubit(this._service)
+    : super(const CoachRosterState(loading: true));
   final CoachRosterService _service;
   int _searchGeneration = 0;
 
@@ -88,11 +91,13 @@ class CoachRosterCubit extends Cubit<CoachRosterState> {
       final response = await _service.getRoster();
       final data = response['data'];
       final raw = data is Map ? data['players'] : data;
-      emit(state.copyWith(
-        loading: false,
-        roster: _players(raw),
-        matches: const [],
-      ));
+      emit(
+        state.copyWith(
+          loading: false,
+          roster: _players(raw),
+          matches: const [],
+        ),
+      );
     } catch (error) {
       emit(state.copyWith(loading: false, error: error.toString()));
     }
@@ -101,14 +106,18 @@ class CoachRosterCubit extends Cubit<CoachRosterState> {
   Future<void> search(String query) async {
     final generation = ++_searchGeneration;
     if (query.trim().length < 2) {
-      emit(state.copyWith(searching: false, matches: const [], clearError: true));
+      emit(
+        state.copyWith(searching: false, matches: const [], clearError: true),
+      );
       return;
     }
     emit(state.copyWith(searching: true, clearError: true));
     try {
       final response = await _service.searchPlayers(query.trim());
       if (generation != _searchGeneration) return;
-      emit(state.copyWith(searching: false, matches: _players(response['data'])));
+      emit(
+        state.copyWith(searching: false, matches: _players(response['data'])),
+      );
     } catch (error) {
       if (generation != _searchGeneration) return;
       emit(state.copyWith(searching: false, error: error.toString()));
@@ -116,17 +125,28 @@ class CoachRosterCubit extends Cubit<CoachRosterState> {
   }
 
   Future<bool> add(String userId) async {
-    emit(state.copyWith(workingPlayerId: userId, clearError: true, clearNotice: true));
+    emit(
+      state.copyWith(
+        workingPlayerId: userId,
+        clearError: true,
+        clearNotice: true,
+      ),
+    );
     try {
       await _service.addPlayer(userId);
       final response = await _service.getRoster();
       final data = response['data'];
-      emit(state.copyWith(
-        clearWorkingPlayer: true,
-        roster: _players(data is Map ? data['players'] : data),
-        matches: state.matches.where((player) => player.userId != userId).toList(),
-        notice: 'Player added to your roster. They are now available for sessions.',
-      ));
+      emit(
+        state.copyWith(
+          clearWorkingPlayer: true,
+          roster: _players(data is Map ? data['players'] : data),
+          matches: state.matches
+              .where((player) => player.userId != userId)
+              .toList(),
+          notice:
+              'Player added to your roster. They are now available for sessions.',
+        ),
+      );
       return true;
     } catch (error) {
       emit(state.copyWith(clearWorkingPlayer: true, error: error.toString()));
@@ -135,14 +155,24 @@ class CoachRosterCubit extends Cubit<CoachRosterState> {
   }
 
   Future<bool> remove(String playerId) async {
-    emit(state.copyWith(workingPlayerId: playerId, clearError: true, clearNotice: true));
+    emit(
+      state.copyWith(
+        workingPlayerId: playerId,
+        clearError: true,
+        clearNotice: true,
+      ),
+    );
     try {
       await _service.removePlayer(playerId);
-      emit(state.copyWith(
-        clearWorkingPlayer: true,
-        roster: state.roster.where((player) => player.playerId != playerId).toList(),
-        notice: 'Player removed from your roster.',
-      ));
+      emit(
+        state.copyWith(
+          clearWorkingPlayer: true,
+          roster: state.roster
+              .where((player) => player.playerId != playerId)
+              .toList(),
+          notice: 'Player removed from your roster.',
+        ),
+      );
       return true;
     } catch (error) {
       emit(state.copyWith(clearWorkingPlayer: true, error: error.toString()));
@@ -151,6 +181,12 @@ class CoachRosterCubit extends Cubit<CoachRosterState> {
   }
 
   List<CoachRosterPlayer> _players(dynamic value) => value is List
-      ? value.whereType<Map>().map((item) => CoachRosterPlayer.fromJson(Map<String, dynamic>.from(item))).toList()
+      ? value
+            .whereType<Map>()
+            .map(
+              (item) =>
+                  CoachRosterPlayer.fromJson(Map<String, dynamic>.from(item)),
+            )
+            .toList()
       : const [];
 }

@@ -2,8 +2,12 @@ import 'package:fitlink/core/services/coach_service.dart';
 import 'package:fitlink/core/services/wearable_service.dart';
 import 'package:fitlink/core/theme/app_theme.dart';
 import 'package:fitlink/features/auth/provider/user_provider.dart';
+import 'package:fitlink/features/coach/bloc/wearable_bloc.dart';
 import 'package:fitlink/features/coach/cubit/coach_cubit_cubit.dart';
+import 'package:fitlink/features/coach/cubit/coach_roster_cubit.dart';
+import 'package:fitlink/features/coach/data/services/coach_roster_service.dart';
 import 'package:fitlink/features/coach/presentation/screens/coach_dashboard_screen.dart';
+import 'package:fitlink/features/coach/presentation/screens/coach_dashboard_screen_section.dart';
 import 'package:fitlink/features/coach/widgets/container.dart';
 import 'package:fitlink/features/sessions/presentation/screens/session_management_screen.dart';
 import 'package:fitlink/features/coach/presentation/screens/coach_player_assignment_screen.dart';
@@ -257,7 +261,6 @@ class _CoachdashboardScreenState extends State<CoachdashboardScreen> {
       ),
     ),
   );
-
   @override
   Widget build(BuildContext context) {
     final compact = MediaQuery.sizeOf(context).width < 900;
@@ -387,11 +390,25 @@ class _CoachdashboardScreenState extends State<CoachdashboardScreen> {
                   children: [
                     if (selectedItem == 'Dashboard')
                       Expanded(
-                        child: BlocProvider(
-                          create: (context) => CoachCubitCubit(CoachService()),
-                          child: CoachDashboardPage(
-                            token: context.read<UserProvider>().userToken,
-                          ),
+                        child: MultiBlocProvider(
+                          providers: [
+                            BlocProvider(
+                              create: (context) => CoachRosterCubit(
+                                CoachRosterService(
+                                  token: context.read<UserProvider>().userToken,
+                                ),
+                              )..load(),
+                            ),
+                            BlocProvider(
+                              create: (context) => WearableBloc(
+                                wearableService: WearableService(),
+                              ),
+                            ),
+                          ],
+                          child: CoachDashboardScreenSection(),
+                          // CoachDashboardPage(
+                          //   token: context.read<UserProvider>().userToken,
+                          // ),
                         ),
                       )
                     else if (selectedItem == 'Sessions')
