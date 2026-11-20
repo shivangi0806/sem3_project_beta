@@ -97,22 +97,10 @@ class PlayerWearableSection extends StatelessWidget {
           }
 
           // Sort newest execution first.
-          final sortedRecords =
-              records
-                  .whereType<Map>()
-                  .map((record) => Map<String, dynamic>.from(record))
-                  .toList()
-                ..sort((a, b) {
-                  final dateA =
-                      DateTime.tryParse('${a['startedAt'] ?? ''}') ??
-                      DateTime(1970);
-
-                  final dateB =
-                      DateTime.tryParse('${b['startedAt'] ?? ''}') ??
-                      DateTime(1970);
-
-                  return dateB.compareTo(dateA);
-                });
+          final sortedRecords = records
+              .whereType<Map>()
+              .map((record) => Map<String, dynamic>.from(record))
+              .toList();
 
           final latest = sortedRecords.first;
           final metrics = Map<String, dynamic>.from(
