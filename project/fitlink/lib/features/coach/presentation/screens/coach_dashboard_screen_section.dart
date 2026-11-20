@@ -171,7 +171,7 @@ class PlayerWearableSection extends StatelessWidget {
         ? Map<String, dynamic>.from(record['metrics'])
         : <String, dynamic>{};
 
-    final startedAt = DateTime.tryParse('${record['startedAt'] ?? ''}');
+    final startedAt = DateTime.tryParse('${record['receivedAt'] ?? ''}');
 
     final formattedDate = startedAt == null
         ? 'Date unavailable'
@@ -209,12 +209,7 @@ class PlayerWearableSection extends StatelessWidget {
               children: [
                 _metric('Steps', '${metrics['steps'] ?? 0}'),
                 _metric('Calories', '${metrics['calories'] ?? 0} kcal'),
-                _metric(
-                  'Heart Rate',
-                  '${metrics['averageHeartRateBpm'] ?? 0} BPM',
-                ),
-                _metric('Distance', '${metrics['distanceMeters'] ?? 0} m'),
-                _metric('Duration', '${metrics['durationSeconds'] ?? 0} sec'),
+                _metric('Heart Rate', '${metrics['heartRate'] ?? 0} BPM'),
               ],
             ),
           ],
